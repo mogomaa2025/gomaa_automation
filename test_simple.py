@@ -95,35 +95,45 @@ def test_basic_functionality():
     return True
 
 def test_api_key_validation():
-    """Test API key validation logic"""
+    """Test API key validation logic for multiple providers"""
     print("\n🔑 Testing API Key Validation...")
     
     # Test cases
     test_cases = [
-        {"google": "", "laminar": "", "expected": False},
-        {"google": "your_gemini_api_key_here", "laminar": "", "expected": False},
-        {"google": "real_key_123", "laminar": "", "expected": True},
-        {"google": "real_key_123", "laminar": "your_laminar_key_here", "expected": True},
-        {"google": "real_key_123", "laminar": "real_laminar_456", "expected": True},
+        {"provider": "google", "keys": {"google_api_key": ""}, "expected": False},
+        {"provider": "google", "keys": {"google_api_key": "key_123"}, "expected": True},
+        {"provider": "openai", "keys": {"google_api_key": "key_123", "openai_api_key": ""}, "expected": False},
+        {"provider": "openai", "keys": {"openai_api_key": "key_456"}, "expected": True},
+        {"provider": "groq", "keys": {"groq_api_key": "key_789"}, "expected": True},
+        {"provider": "ollama", "keys": {}, "expected": True},  # No key needed
     ]
     
+    all_passed = True
     for i, case in enumerate(test_cases, 1):
-        google_key = case["google"]
-        laminar_key = case["laminar"]
+        provider = case["provider"]
+        keys = case["keys"]
         expected = case["expected"]
         
-        # Simulate the validation logic from the main app
-        is_configured = False
-        if (google_key and google_key != "your_gemini_api_key_here" and 
-            laminar_key and laminar_key != "your_laminar_key_here"):
-            is_configured = True
-        elif google_key and google_key != "your_gemini_api_key_here":
-            is_configured = True
+        # Simulate the validation logic from the main app (start_test)
+        is_valid = False
+        if provider == "ollama":
+            is_valid = True
+        else:
+            api_key_name = f"{provider}_api_key"
+            if keys.get(api_key_name):
+                is_valid = True
         
-        status = "✅" if is_configured == expected else "❌"
-        print(f"{status} Test {i}: Google='{google_key[:10]}...', Laminar='{laminar_key[:10]}...' -> {is_configured} (expected: {expected})")
+        status = "✅" if is_valid == expected else "❌"
+        if is_valid != expected:
+            all_passed = False
+
+        print(f"{status} Test {i}: Provider='{provider}', Keys provided='{list(keys.keys())}' -> Valid={is_valid} (expected: {expected})")
     
-    print("✅ API key validation tests completed")
+    if all_passed:
+        print("✅ All API key validation tests passed")
+    else:
+        print("❌ Some API key validation tests failed")
+
 
 if __name__ == "__main__":
     print("🚀 Gomaa Automation - Simple Test Suite")

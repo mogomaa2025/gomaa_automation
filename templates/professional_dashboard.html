@@ -880,6 +880,55 @@
         let isTestRunning = false;
         let coverageChart = null;
 
+        const modelMap = {
+            google: [
+                { value: 'gemini-1.5-flash', text: 'Gemini 1.5 Flash' },
+                { value: 'gemini-1.5-pro', text: 'Gemini 1.5 Pro' }
+            ],
+            openai: [
+                { value: 'gpt-4o', text: 'GPT-4o' },
+                { value: 'gpt-4-turbo', text: 'GPT-4 Turbo' },
+                { value: 'gpt-3.5-turbo', text: 'GPT-3.5 Turbo' }
+            ],
+            groq: [
+                { value: 'llama3-8b-8192', text: 'Llama3 8b' },
+                { value: 'llama3-70b-8192', text: 'Llama3 70b' },
+                { value: 'gemma-7b-it', text: 'Gemma 7b' }
+            ],
+            ollama: [
+                { value: 'llama3', text: 'Llama3' },
+                { value: 'mistral', text: 'Mistral' },
+                { value: 'codellama', text: 'CodeLlama' }
+            ]
+        };
+
+        const apiKeyInfo = {
+            google: {
+                label: 'Google Gemini API Key',
+                placeholder: 'Enter your Google Gemini API key',
+                link: 'https://makersuite.google.com/app/apikey',
+                linkText: 'Google AI Studio'
+            },
+            openai: {
+                label: 'OpenAI API Key',
+                placeholder: 'Enter your OpenAI API key',
+                link: 'https://platform.openai.com/api-keys',
+                linkText: 'OpenAI Platform'
+            },
+            groq: {
+                label: 'Groq API Key',
+                placeholder: 'Enter your Groq API key',
+                link: 'https://console.groq.com/keys',
+                linkText: 'Groq Console'
+            },
+            ollama: {
+                label: 'Ollama (No API Key needed)',
+                placeholder: 'Ollama runs locally, no API key required',
+                link: 'https://ollama.ai',
+                linkText: 'Ollama Website'
+            }
+        };
+
         // Socket.IO event handlers
         socket.on('connect', function() {
             console.log('Connected to server');
@@ -952,8 +1001,23 @@
                 document.getElementById('website_url').value = data.website_url || '';
                 document.getElementById('test_focus').value = data.test_focus || 'about_us';
                 document.getElementById('provider').value = data.provider || 'google';
-                document.getElementById('api_key').value = data.api_key || '';
-                document.getElementById('model').value = data.model || 'gemini-2.5-flash';
+
+                // Update the UI based on the loaded provider
+                updateProviderUI();
+
+                // Load the correct API key
+                const provider = data.provider || 'google';
+                let apiKey = '';
+                if (provider === 'google') {
+                    apiKey = data.google_api_key || '';
+                } else if (provider === 'openai') {
+                    apiKey = data.openai_api_key || '';
+                } else if (provider === 'groq') {
+                    apiKey = data.groq_api_key || '';
+                }
+                document.getElementById('api_key').value = apiKey;
+
+                document.getElementById('model').value = data.model || 'gemini-1.5-flash';
                 document.getElementById('include_functional').checked = data.include_functional !== false;
                 document.getElementById('include_ux_usability').checked = data.include_ux_usability !== false;
                 document.getElementById('include_ui_defects').checked = data.include_ui_defects !== false;
@@ -966,6 +1030,7 @@
                 document.getElementById('custom_prompt').value = data.custom_prompt || '';
                 
                 addLogEntry('Configuration loaded', 'System', 'SUCCESS');
+                updateButtonStates();
             })
             .catch(error => {
                 addLogEntry('Error loading configuration: ' + error, 'Error', 'ERROR');
@@ -974,25 +1039,27 @@
 
         // Test control functions
         function startTest() {
-            // Validate required fields
+            const provider = document.getElementById('provider').value;
             const apiKey = document.getElementById('api_key').value.trim();
-            if (!apiKey) {
-                addLogEntry('❌ Google Gemini API key is required. Please enter your API key in the configuration section.', 'Error', 'ERROR');
-                document.getElementById('api_key').focus();
-                return;
-            }
-
             const websiteUrl = document.getElementById('website_url').value.trim();
+
+            // Validate required fields
             if (!websiteUrl) {
                 addLogEntry('❌ Website URL is required. Please enter a valid URL.', 'Error', 'ERROR');
                 document.getElementById('website_url').focus();
                 return;
             }
 
+            if (provider !== 'ollama' && !apiKey) {
+                addLogEntry(`❌ ${apiKeyInfo[provider].label} is required. Please enter your API key.`, 'Error', 'ERROR');
+                document.getElementById('api_key').focus();
+                return;
+            }
+
             const config = {
                 website_url: websiteUrl,
                 test_focus: document.getElementById('test_focus').value,
-                provider: document.getElementById('provider').value,
+                provider: provider,
                 api_key: apiKey,
                 model: document.getElementById('model').value,
                 include_functional: document.getElementById('include_functional').checked,
@@ -1071,14 +1138,54 @@
             });
         }
 
-        // Add event listeners for input validation
+        function updateProviderUI() {
+            const provider = document.getElementById('provider').value;
+            const modelSelect = document.getElementById('model');
+            const apiKeyLabel = document.querySelector('label[for="api_key"]');
+            const apiKeyInput = document.getElementById('api_key');
+            const apiKeyHelpText = apiKeyInput.nextElementSibling;
+
+            // Update models
+            modelSelect.innerHTML = '';
+            modelMap[provider].forEach(model => {
+                const option = document.createElement('option');
+                option.value = model.value;
+                option.textContent = model.text;
+                modelSelect.appendChild(option);
+            });
+
+            // Update API key field
+            const info = apiKeyInfo[provider];
+            apiKeyLabel.innerHTML = `${info.label}: <span style="color: ${provider === 'ollama' ? 'grey' : 'red'};">*</span>`;
+            apiKeyInput.placeholder = info.placeholder;
+            apiKeyHelpText.innerHTML = `Get your API key from: <a href="${info.link}" target="_blank" style="color: #3b82f6;">${info.linkText}</a>`;
+
+            if (provider === 'ollama') {
+                apiKeyInput.disabled = true;
+                apiKeyInput.parentElement.style.display = 'none';
+            } else {
+                apiKeyInput.disabled = false;
+                apiKeyInput.parentElement.style.display = 'block';
+            }
+            updateButtonStates();
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
-            // Add input event listeners for real-time validation
+            const providerSelect = document.getElementById('provider');
+            providerSelect.addEventListener('change', updateProviderUI);
+
             document.getElementById('api_key').addEventListener('input', updateButtonStates);
             document.getElementById('website_url').addEventListener('input', updateButtonStates);
             
-            // Initial button state update
-            updateButtonStates();
+            // Initial UI setup
+            loadConfiguration();
+            updateProviderUI();
+
+            // Add event listener for enhanced checklist button
+            const checklistBtn = document.getElementById('load_checklist_btn');
+            if (checklistBtn) {
+                checklistBtn.addEventListener('click', loadEnhancedChecklist);
+            }
         });
 
         // Results management
@@ -1277,17 +1384,19 @@
             const startBtn = document.getElementById('startBtn');
             const pauseBtn = document.getElementById('pauseBtn');
             const stopBtn = document.getElementById('stopBtn');
+            const provider = document.getElementById('provider').value;
 
             if (isTestRunning) {
                 startBtn.disabled = true;
                 pauseBtn.disabled = false;
                 stopBtn.disabled = false;
             } else {
-                // Check if configuration is valid
                 const apiKey = document.getElementById('api_key').value.trim();
                 const websiteUrl = document.getElementById('website_url').value.trim();
                 
-                if (apiKey && websiteUrl) {
+                let isConfigValid = websiteUrl && (provider === 'ollama' || apiKey);
+
+                if (isConfigValid) {
                     startBtn.disabled = false;
                     startBtn.title = 'Click to start professional testing';
                 } else {
