@@ -1321,6 +1321,11 @@
             if (data.coverage_reports && data.coverage_reports.length > 0) {
                 const latestCoverage = data.coverage_reports[data.coverage_reports.length - 1].coverage;
                 updateCoverageChart(latestCoverage);
+            } else {
+                if (coverageChart) {
+                    coverageChart.destroy();
+                    coverageChart = null;
+                }
             }
 
             // Update recommendations

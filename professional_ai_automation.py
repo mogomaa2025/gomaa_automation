@@ -114,6 +114,7 @@ test_results = {
 
 # Global testing framework
 test_execution_thread = None
+stop_event = threading.Event()
 
 def datetime_to_string(obj):
     """Convert datetime objects to ISO format strings for JSON serialization"""
@@ -212,103 +213,31 @@ class ProfessionalTestController:
         )
 
     def _generate_test_task(self):
-        """Generates the task prompt for the AI agent."""
-        return f"""
-        You are a QA tester examining the {test_config['test_focus']} section on {test_config['website_url']}.
+        """Generates a robust task prompt for the AI agent to prevent looping."""
 
-        Your mission is to:
-        1. Navigate to {test_config['website_url']}
-        2. Locate and examine the {test_config['test_focus']} section
-        3. Test the functionality of the {test_config['test_focus']} section (click buttons, check links, verify content)
-        4. Document any issues, bugs, or unexpected behavior you find
-        5. Provide a brief summary of your findings
+        base_task = f"""
+        You are a senior QA tester examining the '{test_config['test_focus']}' section of the website {test_config['website_url']}.
 
-        IMPORTANT: Complete your testing in 5-8 steps maximum. Do not loop or repeat actions.
-        Focus on efficiency and professional testing standards.
+        Your primary mission is to identify bugs and usability issues. Follow these instructions carefully:
+
+        1.  **Explore and Test:** Navigate to {test_config['website_url']} and thoroughly test the '{test_config['test_focus']}' section. This includes clicking all relevant buttons, testing forms, verifying links, and checking content.
+        2.  **Document Findings:** For every issue you find, provide a clear and concise bug report.
+        3.  **Summarize:** Conclude with a brief summary of your findings.
+
+        **CRITICAL RULES TO PREVENT LOOPING:**
+        -   **DO NOT REPEAT ACTIONS.** You have a memory of your past actions. Do not perform the same action (e.g., clicking the same button) more than once.
+        -   **PRIORITIZE DIVERSITY.** Your goal is to test as many *different* features as possible within the step limit. Avoid getting stuck on one element.
+        -   **IF STUCK, MOVE ON.** If you find yourself in a repetitive cycle (like opening and closing a modal), stop that cycle immediately and choose a different, untested element to interact with.
+        -   **STEP LIMIT:** You must complete your entire test in a maximum of 8 steps.
         """
 
-    def _process_agent_history(self, history: List[Any]) -> Dict[str, Any]:
-        """Processes the agent's history to extract test cases and bug reports."""
-        test_cases = []
-        bug_reports = []
-        test_steps = []
+        custom_instructions = test_config.get("custom_prompt", "")
+        if custom_instructions:
+            base_task += f"\n\n**ADDITIONAL USER-DEFINED REQUIREMENTS:**\n{custom_instructions}"
 
-        if not history:
-            return {"test_cases": [], "bug_reports": [], "execution_log": self.execution_log}
+        return base_task
 
-        for i, step in enumerate(history):
-            if hasattr(step, 'action') and step.action:
-                test_steps.append({
-                    "step_number": i + 1,
-                    "action": str(step.action),
-                    "expected_result": "Action should execute successfully",
-                    "status": "PASSED" if not hasattr(step, 'error') or not step.error else "FAILED",
-                    "actual_result": str(step.result) if hasattr(step, 'result') else "Action completed",
-                    "execution_time": getattr(step, 'execution_time', 0)
-                })
-
-            if hasattr(step, 'error') and step.error:
-                bug_reports.append({
-                    "bug_id": f"BUG_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{i}",
-                    "title": f"Test Step {i+1} Failed",
-                    "description": str(step.error),
-                    "severity": "MEDIUM",
-                    "category": "Functional",
-                    "steps_to_reproduce": [f"Execute test step {i+1}"],
-                    "expected_behavior": "Action should complete successfully",
-                    "actual_behavior": str(step.error),
-                    "environment": "AI Testing Environment",
-                    "browser": "Chrome (via browser-use)",
-                    "device": "Desktop",
-                    "tester": "AI Testing Agent",
-                    "reported_date": datetime.now().isoformat(),
-                    "status": "OPEN"
-                })
-
-            if hasattr(step, 'result') and step.result:
-                result_text = str(step.result).lower()
-                if any(issue in result_text for issue in ['failed', 'error', 'issue', 'problem', 'broken', 'not working']):
-                    bug_reports.append({
-                        "bug_id": f"ISSUE_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{i}",
-                        "title": f"Issue Found in Step {i+1}",
-                        "description": str(step.result),
-                        "severity": "LOW",
-                        "category": "Functional",
-                        "steps_to_reproduce": [f"Execute test step {i+1}"],
-                        "expected_behavior": "Feature should work correctly",
-                        "actual_behavior": str(step.result),
-                        "environment": "AI Testing Environment",
-                        "browser": "Chrome (via browser-use)",
-                        "device": "Desktop",
-                        "tester": "AI Testing Agent",
-                        "reported_date": datetime.now().isoformat(),
-                        "status": "OPEN"
-                    })
-
-        test_cases.append({
-            "test_id": "BROWSER_TEST_001",
-            "title": f"Browser Test: {test_config['test_focus']}",
-            "description": f"Automated browser testing of {test_config['test_focus']} section on {test_config['website_url']}",
-            "priority": "P1",
-            "status": "COMPLETED",
-            "execution_time": sum(step.get('execution_time', 0) for step in test_steps) or 15.5,
-            "test_steps": test_steps,
-            "created_date": datetime.now().isoformat(),
-            "tester": "AI Testing Agent"
-        })
-
-        return {
-            "test_cases": test_cases,
-            "bug_reports": bug_reports,
-            "execution_log": self.execution_log,
-            "summary": {
-                "test_coverage": {
-                    "Functional Testing": 85.0, "UI/UX Testing": 90.0, "Responsiveness Testing": 75.0,
-                    "Accessibility Testing": 60.0, "Performance Testing": 80.0, "Security Testing": 70.0,
-                    "Browser Compatibility": 85.0, "Content Testing": 95.0
-                }
-            }
-        }
+    # This method's logic has been inlined into _run_direct_browser_test for real-time updates
     
     async def run_professional_test_suite(self):
         """Run a complete professional test suite"""
@@ -355,7 +284,7 @@ class ProfessionalTestController:
             socketio.emit('test_completed', {"status": "completed"})
     
     async def _run_direct_browser_test(self):
-        """Orchestrates the direct browser test."""
+        """Orchestrates the direct browser test and provides real-time feedback."""
         try:
             self.log("🔄 Running direct browser testing...", "INFO")
             if not LAMINAR_AVAILABLE:
@@ -374,9 +303,70 @@ class ProfessionalTestController:
             
             agent = Agent(task=task, llm=llm, max_steps=8, browser_session=browser_session)
             
+            if stop_event.is_set():
+                self.log("⏹️ Test execution stopped by user before agent run.", "INFO")
+                return {"test_cases": [], "bug_reports": [], "execution_log": self.execution_log}
+
             history = await agent.run()
+
+            if stop_event.is_set():
+                self.log("⏹️ Test execution stopped by user after agent run.", "INFO")
+
+            # Process history step-by-step and emit updates
+            test_cases = []
+            bug_reports = []
+            test_steps = []
+
+            if history:
+                for i, step in enumerate(history):
+                    if stop_event.is_set():
+                        self.log("⏹️ Test processing stopped by user.", "INFO")
+                        break
+
+                    # Process step
+                    if hasattr(step, 'action') and step.action:
+                        test_steps.append({
+                            "step_number": i + 1, "action": str(step.action),
+                            "expected_result": "Action should execute successfully",
+                            "status": "PASSED" if not hasattr(step, 'error') or not step.error else "FAILED",
+                            "actual_result": str(step.result) if hasattr(step, 'result') else "Action completed",
+                            "execution_time": getattr(step, 'execution_time', 0)
+                        })
+
+                    if hasattr(step, 'error') and step.error:
+                        bug_reports.append({
+                            "bug_id": f"BUG_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{i}",
+                            "title": f"Test Step {i+1} Failed: {str(step.action)}", "description": str(step.error),
+                            "severity": "MEDIUM", "category": "Functional",
+                            "steps_to_reproduce": [f"Execute test step {i+1}"],
+                            "expected_behavior": "Action should complete successfully", "actual_behavior": str(step.error)
+                        })
+
+                    # Emit real-time update
+                    current_test_case = {
+                        "test_id": "BROWSER_TEST_001", "title": f"Browser Test: {test_config['test_focus']}",
+                        "status": "IN_PROGRESS", "test_steps": test_steps.copy(),
+                        "execution_time": sum(s.get('execution_time', 0) for s in test_steps)
+                    }
+
+                    # Update global results for UI
+                    test_results['test_cases'] = [current_test_case]
+                    test_results['bug_reports'] = bug_reports.copy()
+
+                    socketio.emit('results_update', prepare_data_for_socket(test_results))
+                    await asyncio.sleep(0.2)
+
+            # Finalize test case
+            final_test_case = {
+                "test_id": "BROWSER_TEST_001", "title": f"Browser Test: {test_config['test_focus']}",
+                "status": "COMPLETED" if not any(b['severity'] == 'MEDIUM' for b in bug_reports) else "FAILED",
+                "test_steps": test_steps, "execution_time": sum(s.get('execution_time', 0) for s in test_steps)
+            }
             
-            return self._process_agent_history(history)
+            return {
+                "test_cases": [final_test_case], "bug_reports": bug_reports, "execution_log": self.execution_log,
+                "summary": { "test_coverage": { "Functional Testing": 85.0 } }
+            }
             
         except Exception as e:
             self.log(f"Direct browser testing failed: {str(e)}", "ERROR")
@@ -495,11 +485,8 @@ def start_test():
         
         # Update configuration from the start request
         if data:
-            # First, update the provider if it's in the data
             if 'provider' in data:
                 test_config['provider'] = data['provider']
-
-            # Now, update the rest of the config
             for key, value in data.items():
                 if key == "api_key" and value:
                     provider = test_config['provider']
@@ -512,63 +499,44 @@ def start_test():
                 elif key in test_config:
                     test_config[key] = value
         
-        # Save updated configuration
         save_config_to_file()
         
-        # Validate configuration
         if not test_config["website_url"]:
-            return jsonify({"error": "Website URL is required. Please enter a valid URL in the configuration section."}), 400
+            return jsonify({"error": "Website URL is required."}), 400
 
         provider = test_config["provider"]
-        if provider != "ollama":  # Ollama doesn't need an API key
+        if provider != "ollama":
             api_key_name = f"{provider}_api_key"
             api_key = test_config.get(api_key_name)
             if not api_key:
-                return jsonify({"error": f"{provider.capitalize()} API key is required. Please enter your API key in the configuration section."}), 400
+                return jsonify({"error": f"{provider.capitalize()} API key is required."}), 400
         
-        # Check if framework is available
         if not LAMINAR_AVAILABLE:
             return jsonify({"error": "browser-use is required for testing"}), 500
         
-        # Reset test status
         test_status.update({
-            "is_running": True,
-            "is_paused": False,
-            "current_test_case": 0,
-            "total_test_cases": 0,
-            "progress_percentage": 0,
-            "current_url": test_config["website_url"],
-            "status_message": "Initializing professional testing framework...",
-            "current_focus_area": test_config["test_focus"],
-            "test_coverage": {}
+            "is_running": True, "is_paused": False, "progress_percentage": 0,
+            "current_url": test_config["website_url"], "status_message": "Initializing...",
+            "current_focus_area": test_config["test_focus"], "test_coverage": {}
         })
         
-        # Reset results
         test_results.update({
-            "test_cases": [],
-            "bug_reports": [],
-            "test_suites": [],
-            "coverage_reports": [],
-            "execution_logs": [],
-            "recommendations": []
+            "test_cases": [], "bug_reports": [], "test_suites": [], "coverage_reports": [],
+            "execution_logs": [], "recommendations": []
         })
         
-        # Save initial state
         save_results_to_file()
         
-        # Create and run professional test controller
+        stop_event.clear()
         def run_professional_test():
             try:
                 controller = ProfessionalTestController()
                 asyncio.run(controller.run_professional_test_suite())
-                
             except Exception as e:
                 error_msg = f"Professional test failed: {str(e)}"
                 print(f"❌ {error_msg}")
-                
                 test_status["status_message"] = f"Error: {str(e)}"
                 test_status["is_running"] = False
-                
                 save_results_to_file()
                 socketio.emit('test_completed', {"status": "failed", "error": str(e)})
         
@@ -584,25 +552,19 @@ def start_test():
 @app.route('/api/stop', methods=['POST'])
 def stop_test():
     """Stop the current test"""
-    global test_status, test_execution_thread
+    global test_status
     
     try:
-        # Update status
+        stop_event.set()
         test_status.update({
             "is_running": False,
             "is_paused": False,
-            "status_message": "Professional testing stopped"
+            "status_message": "Stopping professional testing..."
         })
-        
-        # Save current state
-        save_results_to_file()
-        
-        # Emit updates
         status_data = prepare_data_for_socket(test_status)
         socketio.emit('status_update', status_data)
-        socketio.emit('test_stopped', {"status": "stopped"})
-        
-        return jsonify({"status": "stopped"})
+        socketio.emit('test_stopped', {"status": "stopping"})
+        return jsonify({"status": "stopping"})
         
     except Exception as e:
         return jsonify({"error": str(e)}), 500
