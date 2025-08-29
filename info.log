@@ -1,0 +1,74 @@
+2025-08-29 23:52:17,086 - INFO     [werkzeug] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.103:5000
+2025-08-29 23:52:17,087 - INFO     [werkzeug] [33mPress CTRL+C to quit[0m
+2025-08-30 00:01:59,053 - INFO     [werkzeug] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.103:5000
+2025-08-30 00:01:59,053 - INFO     [werkzeug] [33mPress CTRL+C to quit[0m
+2025-08-30 00:05:03,544 - INFO     [werkzeug] 192.168.1.110 - - [30/Aug/2025 00:05:03] "GET /socket.io/?EIO=4&transport=polling&t=PZtfUtD HTTP/1.1" 200 -
+2025-08-30 00:05:03,577 - INFO     [werkzeug] 192.168.1.110 - - [30/Aug/2025 00:05:03] "POST /socket.io/?EIO=4&transport=polling&t=PZtfUtl&sid=BXycIMNenP7K5Y8FAAAA HTTP/1.1" 200 -
+2025-08-30 00:05:03,578 - INFO     [werkzeug] 192.168.1.110 - - [30/Aug/2025 00:05:03] "GET /socket.io/?EIO=4&transport=polling&t=PZtfUtn&sid=BXycIMNenP7K5Y8FAAAA HTTP/1.1" 200 -
+2025-08-30 00:05:05,325 - INFO     [werkzeug] 127.0.0.1 - - [30/Aug/2025 00:05:05] "GET /socket.io/?EIO=4&transport=polling&t=PZtfVKe HTTP/1.1" 200 -
+2025-08-30 00:05:05,341 - INFO     [werkzeug] 127.0.0.1 - - [30/Aug/2025 00:05:05] "POST /socket.io/?EIO=4&transport=polling&t=PZtfVKo&sid=5SzlOb0TotRjRNC9AAAC HTTP/1.1" 200 -
+2025-08-30 00:05:05,344 - INFO     [werkzeug] 127.0.0.1 - - [30/Aug/2025 00:05:05] "GET /socket.io/?EIO=4&transport=polling&t=PZtfVKq&sid=5SzlOb0TotRjRNC9AAAC HTTP/1.1" 200 -
+2025-08-30 00:05:36,002 - INFO     [werkzeug] 127.0.0.1 - - [30/Aug/2025 00:05:36] "GET /socket.io/?EIO=4&transport=websocket&sid=5SzlOb0TotRjRNC9AAAC HTTP/1.1" 200 -
+2025-08-30 00:05:36,045 - INFO     [werkzeug] 127.0.0.1 - - [30/Aug/2025 00:05:36] "GET / HTTP/1.1" 200 -
+2025-08-30 00:05:36,167 - INFO     [werkzeug] 127.0.0.1 - - [30/Aug/2025 00:05:36] "GET /socket.io/?EIO=4&transport=polling&t=PZtfcs6 HTTP/1.1" 200 -
+2025-08-30 00:05:36,223 - INFO     [werkzeug] 127.0.0.1 - - [30/Aug/2025 00:05:36] "GET /api/config HTTP/1.1" 200 -
+2025-08-30 00:05:36,290 - INFO     [werkzeug] 127.0.0.1 - - [30/Aug/2025 00:05:36] "POST /socket.io/?EIO=4&transport=polling&t=PZtfcu6&sid=Z6LYZ_gUowtVsDCgAAAE HTTP/1.1" 200 -
+2025-08-30 00:05:36,295 - INFO     [werkzeug] 127.0.0.1 - - [30/Aug/2025 00:05:36] "GET /socket.io/?EIO=4&transport=polling&t=PZtfcu8&sid=Z6LYZ_gUowtVsDCgAAAE HTTP/1.1" 200 -
+2025-08-30 00:05:40,045 - INFO     [werkzeug] 127.0.0.1 - - [30/Aug/2025 00:05:40] "GET /api/load_results HTTP/1.1" 200 -
+2025-08-30 00:08:41,990 - INFO     [werkzeug] 127.0.0.1 - - [30/Aug/2025 00:08:41] "GET /socket.io/?EIO=4&transport=websocket&sid=Z6LYZ_gUowtVsDCgAAAE HTTP/1.1" 200 -
+2025-08-30 00:10:59,992 - INFO     [werkzeug] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.103:5000
+2025-08-30 00:10:59,992 - INFO     [werkzeug] [33mPress CTRL+C to quit[0m
+2025-08-30 00:11:02,395 - INFO     [werkzeug] 127.0.0.1 - - [30/Aug/2025 00:11:02] "GET / HTTP/1.1" 200 -
+2025-08-30 00:11:02,754 - INFO     [werkzeug] 127.0.0.1 - - [30/Aug/2025 00:11:02] "GET /socket.io/?EIO=4&transport=polling&t=PZtgsbS HTTP/1.1" 200 -
+2025-08-30 00:11:02,831 - INFO     [werkzeug] 127.0.0.1 - - [30/Aug/2025 00:11:02] "GET /api/config HTTP/1.1" 200 -
+2025-08-30 00:11:02,887 - INFO     [werkzeug] 127.0.0.1 - - [30/Aug/2025 00:11:02] "POST /socket.io/?EIO=4&transport=polling&t=PZtgscj&sid=wStghjgYOSsMHGJJAAAG HTTP/1.1" 200 -
+2025-08-30 00:11:02,902 - INFO     [werkzeug] 127.0.0.1 - - [30/Aug/2025 00:11:02] "GET /socket.io/?EIO=4&transport=polling&t=PZtgsck&sid=wStghjgYOSsMHGJJAAAG HTTP/1.1" 200 -
+2025-08-30 00:11:02,970 - INFO     [werkzeug] 127.0.0.1 - - [30/Aug/2025 00:11:02] "GET /socket.io/?EIO=4&transport=polling&t=PZtgses&sid=wStghjgYOSsMHGJJAAAG HTTP/1.1" 200 -
+2025-08-30 00:11:03,011 - INFO     [werkzeug] 127.0.0.1 - - [30/Aug/2025 00:11:03] "GET /socket.io/?EIO=4&transport=polling&t=PZtgsfP&sid=wStghjgYOSsMHGJJAAAG HTTP/1.1" 200 -
+2025-08-30 00:11:28,107 - INFO     [werkzeug] 127.0.0.1 - - [30/Aug/2025 00:11:28] "GET /api/clear_results HTTP/1.1" 200 -
+2025-08-30 00:11:29,301 - INFO     [werkzeug] 127.0.0.1 - - [30/Aug/2025 00:11:29] "GET /api/clear_results HTTP/1.1" 200 -
+2025-08-30 00:11:29,510 - INFO     [werkzeug] 127.0.0.1 - - [30/Aug/2025 00:11:29] "GET /api/clear_results HTTP/1.1" 200 -
+2025-08-30 00:11:29,697 - INFO     [werkzeug] 127.0.0.1 - - [30/Aug/2025 00:11:29] "GET /api/clear_results HTTP/1.1" 200 -
+2025-08-30 00:11:29,896 - INFO     [werkzeug] 127.0.0.1 - - [30/Aug/2025 00:11:29] "GET /api/clear_results HTTP/1.1" 200 -
+2025-08-30 00:11:32,405 - INFO     [werkzeug] 127.0.0.1 - - [30/Aug/2025 00:11:32] "POST /api/start HTTP/1.1" 200 -
+2025-08-30 00:11:32,431 - INFO     [service] Using anonymized telemetry, see https://docs.browser-use.com/development/telemetry.
+2025-08-30 00:11:40,785 - INFO     [werkzeug] 192.168.1.110 - - [30/Aug/2025 00:11:40] "GET /socket.io/?EIO=4&transport=websocket&sid=BXycIMNenP7K5Y8FAAAA HTTP/1.1" 200 -
+2025-08-30 00:11:40,798 - INFO     [werkzeug] 192.168.1.110 - - [30/Aug/2025 00:11:40] "GET / HTTP/1.1" 200 -
+2025-08-30 00:11:40,866 - INFO     [werkzeug] 192.168.1.110 - - [30/Aug/2025 00:11:40] "GET /socket.io/?EIO=4&transport=polling&t=PZtg_ti HTTP/1.1" 200 -
+2025-08-30 00:11:40,906 - INFO     [werkzeug] 192.168.1.110 - - [30/Aug/2025 00:11:40] "GET /api/config HTTP/1.1" 200 -
+2025-08-30 00:11:40,933 - INFO     [werkzeug] 192.168.1.110 - - [30/Aug/2025 00:11:40] "POST /socket.io/?EIO=4&transport=polling&t=PZtg_uQ&sid=puq-bX5VkiiAOm7SAAAI HTTP/1.1" 200 -
+2025-08-30 00:11:40,933 - INFO     [werkzeug] 192.168.1.110 - - [30/Aug/2025 00:11:40] "GET /socket.io/?EIO=4&transport=polling&t=PZtg_uT&sid=puq-bX5VkiiAOm7SAAAI HTTP/1.1" 200 -
+2025-08-30 00:11:40,969 - INFO     [werkzeug] 192.168.1.110 - - [30/Aug/2025 00:11:40] "GET /socket.io/?EIO=4&transport=polling&t=PZtg_v4&sid=puq-bX5VkiiAOm7SAAAI HTTP/1.1" 200 -
+2025-08-30 00:11:42,147 - INFO     [Agent] 
+
+2025-08-30 00:11:57,959 - INFO     [Agent] 
+
+2025-08-30 00:12:06,063 - INFO     [werkzeug] 192.168.1.110 - - [30/Aug/2025 00:12:06] "GET /socket.io/?EIO=4&transport=websocket&sid=puq-bX5VkiiAOm7SAAAI HTTP/1.1" 200 -
+2025-08-30 00:12:06,076 - INFO     [werkzeug] 192.168.1.110 - - [30/Aug/2025 00:12:06] "GET / HTTP/1.1" 200 -
+2025-08-30 00:12:06,192 - INFO     [werkzeug] 192.168.1.110 - - [30/Aug/2025 00:12:06] "GET /socket.io/?EIO=4&transport=polling&t=PZth62Y HTTP/1.1" 200 -
+2025-08-30 00:12:06,193 - INFO     [werkzeug] 192.168.1.110 - - [30/Aug/2025 00:12:06] "GET /api/config HTTP/1.1" 200 -
+2025-08-30 00:12:06,269 - INFO     [werkzeug] 192.168.1.110 - - [30/Aug/2025 00:12:06] "POST /socket.io/?EIO=4&transport=polling&t=PZth64E&sid=d32KMyHh5TQ6kGSkAAAK HTTP/1.1" 200 -
+2025-08-30 00:12:06,271 - INFO     [werkzeug] 192.168.1.110 - - [30/Aug/2025 00:12:06] "GET /socket.io/?EIO=4&transport=polling&t=PZth64H&sid=d32KMyHh5TQ6kGSkAAAK HTTP/1.1" 200 -
+2025-08-30 00:12:06,313 - INFO     [werkzeug] 192.168.1.110 - - [30/Aug/2025 00:12:06] "GET /socket.io/?EIO=4&transport=polling&t=PZth65B&sid=d32KMyHh5TQ6kGSkAAAK HTTP/1.1" 200 -
+2025-08-30 00:12:11,245 - INFO     [Agent] 
+
+2025-08-30 00:12:33,483 - INFO     [Agent] 
+
+2025-08-30 00:12:50,588 - INFO     [Agent] 
+
+2025-08-30 00:12:58,833 - INFO     [werkzeug] 192.168.1.110 - - [30/Aug/2025 00:12:58] "POST /api/stop HTTP/1.1" 200 -
+2025-08-30 00:13:05,243 - INFO     [werkzeug] 127.0.0.1 - - [30/Aug/2025 00:13:05] "GET /socket.io/?EIO=4&transport=websocket&sid=wStghjgYOSsMHGJJAAAG HTTP/1.1" 200 -
+2025-08-30 00:13:05,266 - INFO     [werkzeug] 127.0.0.1 - - [30/Aug/2025 00:13:05] "GET / HTTP/1.1" 200 -
+2025-08-30 00:13:05,381 - INFO     [werkzeug] 127.0.0.1 - - [30/Aug/2025 00:13:05] "GET /socket.io/?EIO=4&transport=polling&t=PZthKXW HTTP/1.1" 200 -
+2025-08-30 00:13:05,490 - INFO     [werkzeug] 127.0.0.1 - - [30/Aug/2025 00:13:05] "GET /api/config HTTP/1.1" 200 -
+2025-08-30 00:13:05,515 - INFO     [werkzeug] 127.0.0.1 - - [30/Aug/2025 00:13:05] "POST /socket.io/?EIO=4&transport=polling&t=PZthKY1&sid=xMcnFFglZ3KNrJomAAAM HTTP/1.1" 200 -
+2025-08-30 00:13:05,515 - INFO     [werkzeug] 127.0.0.1 - - [30/Aug/2025 00:13:05] "GET /socket.io/?EIO=4&transport=polling&t=PZthKY2&sid=xMcnFFglZ3KNrJomAAAM HTTP/1.1" 200 -

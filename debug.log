@@ -1,0 +1,110 @@
+2025-08-29 23:52:17,086 - INFO     [werkzeug] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.103:5000
+2025-08-29 23:52:17,087 - INFO     [werkzeug] [33mPress CTRL+C to quit[0m
+2025-08-30 00:01:59,053 - INFO     [werkzeug] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.103:5000
+2025-08-30 00:01:59,053 - INFO     [werkzeug] [33mPress CTRL+C to quit[0m
+2025-08-30 00:05:03,544 - INFO     [werkzeug] 192.168.1.110 - - [30/Aug/2025 00:05:03] "GET /socket.io/?EIO=4&transport=polling&t=PZtfUtD HTTP/1.1" 200 -
+2025-08-30 00:05:03,577 - INFO     [werkzeug] 192.168.1.110 - - [30/Aug/2025 00:05:03] "POST /socket.io/?EIO=4&transport=polling&t=PZtfUtl&sid=BXycIMNenP7K5Y8FAAAA HTTP/1.1" 200 -
+2025-08-30 00:05:03,578 - INFO     [werkzeug] 192.168.1.110 - - [30/Aug/2025 00:05:03] "GET /socket.io/?EIO=4&transport=polling&t=PZtfUtn&sid=BXycIMNenP7K5Y8FAAAA HTTP/1.1" 200 -
+2025-08-30 00:05:05,325 - INFO     [werkzeug] 127.0.0.1 - - [30/Aug/2025 00:05:05] "GET /socket.io/?EIO=4&transport=polling&t=PZtfVKe HTTP/1.1" 200 -
+2025-08-30 00:05:05,341 - INFO     [werkzeug] 127.0.0.1 - - [30/Aug/2025 00:05:05] "POST /socket.io/?EIO=4&transport=polling&t=PZtfVKo&sid=5SzlOb0TotRjRNC9AAAC HTTP/1.1" 200 -
+2025-08-30 00:05:05,344 - INFO     [werkzeug] 127.0.0.1 - - [30/Aug/2025 00:05:05] "GET /socket.io/?EIO=4&transport=polling&t=PZtfVKq&sid=5SzlOb0TotRjRNC9AAAC HTTP/1.1" 200 -
+2025-08-30 00:05:36,002 - INFO     [werkzeug] 127.0.0.1 - - [30/Aug/2025 00:05:36] "GET /socket.io/?EIO=4&transport=websocket&sid=5SzlOb0TotRjRNC9AAAC HTTP/1.1" 200 -
+2025-08-30 00:05:36,045 - INFO     [werkzeug] 127.0.0.1 - - [30/Aug/2025 00:05:36] "GET / HTTP/1.1" 200 -
+2025-08-30 00:05:36,167 - INFO     [werkzeug] 127.0.0.1 - - [30/Aug/2025 00:05:36] "GET /socket.io/?EIO=4&transport=polling&t=PZtfcs6 HTTP/1.1" 200 -
+2025-08-30 00:05:36,223 - INFO     [werkzeug] 127.0.0.1 - - [30/Aug/2025 00:05:36] "GET /api/config HTTP/1.1" 200 -
+2025-08-30 00:05:36,290 - INFO     [werkzeug] 127.0.0.1 - - [30/Aug/2025 00:05:36] "POST /socket.io/?EIO=4&transport=polling&t=PZtfcu6&sid=Z6LYZ_gUowtVsDCgAAAE HTTP/1.1" 200 -
+2025-08-30 00:05:36,295 - INFO     [werkzeug] 127.0.0.1 - - [30/Aug/2025 00:05:36] "GET /socket.io/?EIO=4&transport=polling&t=PZtfcu8&sid=Z6LYZ_gUowtVsDCgAAAE HTTP/1.1" 200 -
+2025-08-30 00:05:40,045 - INFO     [werkzeug] 127.0.0.1 - - [30/Aug/2025 00:05:40] "GET /api/load_results HTTP/1.1" 200 -
+2025-08-30 00:08:41,990 - INFO     [werkzeug] 127.0.0.1 - - [30/Aug/2025 00:08:41] "GET /socket.io/?EIO=4&transport=websocket&sid=Z6LYZ_gUowtVsDCgAAAE HTTP/1.1" 200 -
+2025-08-30 00:10:59,992 - INFO     [werkzeug] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.103:5000
+2025-08-30 00:10:59,992 - INFO     [werkzeug] [33mPress CTRL+C to quit[0m
+2025-08-30 00:11:02,395 - INFO     [werkzeug] 127.0.0.1 - - [30/Aug/2025 00:11:02] "GET / HTTP/1.1" 200 -
+2025-08-30 00:11:02,754 - INFO     [werkzeug] 127.0.0.1 - - [30/Aug/2025 00:11:02] "GET /socket.io/?EIO=4&transport=polling&t=PZtgsbS HTTP/1.1" 200 -
+2025-08-30 00:11:02,831 - INFO     [werkzeug] 127.0.0.1 - - [30/Aug/2025 00:11:02] "GET /api/config HTTP/1.1" 200 -
+2025-08-30 00:11:02,887 - INFO     [werkzeug] 127.0.0.1 - - [30/Aug/2025 00:11:02] "POST /socket.io/?EIO=4&transport=polling&t=PZtgscj&sid=wStghjgYOSsMHGJJAAAG HTTP/1.1" 200 -
+2025-08-30 00:11:02,902 - INFO     [werkzeug] 127.0.0.1 - - [30/Aug/2025 00:11:02] "GET /socket.io/?EIO=4&transport=polling&t=PZtgsck&sid=wStghjgYOSsMHGJJAAAG HTTP/1.1" 200 -
+2025-08-30 00:11:02,970 - INFO     [werkzeug] 127.0.0.1 - - [30/Aug/2025 00:11:02] "GET /socket.io/?EIO=4&transport=polling&t=PZtgses&sid=wStghjgYOSsMHGJJAAAG HTTP/1.1" 200 -
+2025-08-30 00:11:03,011 - INFO     [werkzeug] 127.0.0.1 - - [30/Aug/2025 00:11:03] "GET /socket.io/?EIO=4&transport=polling&t=PZtgsfP&sid=wStghjgYOSsMHGJJAAAG HTTP/1.1" 200 -
+2025-08-30 00:11:28,107 - INFO     [werkzeug] 127.0.0.1 - - [30/Aug/2025 00:11:28] "GET /api/clear_results HTTP/1.1" 200 -
+2025-08-30 00:11:29,301 - INFO     [werkzeug] 127.0.0.1 - - [30/Aug/2025 00:11:29] "GET /api/clear_results HTTP/1.1" 200 -
+2025-08-30 00:11:29,510 - INFO     [werkzeug] 127.0.0.1 - - [30/Aug/2025 00:11:29] "GET /api/clear_results HTTP/1.1" 200 -
+2025-08-30 00:11:29,697 - INFO     [werkzeug] 127.0.0.1 - - [30/Aug/2025 00:11:29] "GET /api/clear_results HTTP/1.1" 200 -
+2025-08-30 00:11:29,896 - INFO     [werkzeug] 127.0.0.1 - - [30/Aug/2025 00:11:29] "GET /api/clear_results HTTP/1.1" 200 -
+2025-08-30 00:11:32,405 - INFO     [werkzeug] 127.0.0.1 - - [30/Aug/2025 00:11:32] "POST /api/start HTTP/1.1" 200 -
+2025-08-30 00:11:32,431 - INFO     [service] Using anonymized telemetry, see https://docs.browser-use.com/development/telemetry.
+2025-08-30 00:11:32,440 - DEBUG    [browser_use.tokens.service] LLM instance 2410348852816 (google_gemini-2.5-flash) is already registered
+2025-08-30 00:11:32,493 - DEBUG    [browser_use.agent.service]  +vision extraction_model=gemini-2.5-flash +file_system
+2025-08-30 00:11:40,785 - INFO     [werkzeug] 192.168.1.110 - - [30/Aug/2025 00:11:40] "GET /socket.io/?EIO=4&transport=websocket&sid=BXycIMNenP7K5Y8FAAAA HTTP/1.1" 200 -
+2025-08-30 00:11:40,798 - INFO     [werkzeug] 192.168.1.110 - - [30/Aug/2025 00:11:40] "GET / HTTP/1.1" 200 -
+2025-08-30 00:11:40,866 - INFO     [werkzeug] 192.168.1.110 - - [30/Aug/2025 00:11:40] "GET /socket.io/?EIO=4&transport=polling&t=PZtg_ti HTTP/1.1" 200 -
+2025-08-30 00:11:40,906 - INFO     [werkzeug] 192.168.1.110 - - [30/Aug/2025 00:11:40] "GET /api/config HTTP/1.1" 200 -
+2025-08-30 00:11:40,933 - INFO     [werkzeug] 192.168.1.110 - - [30/Aug/2025 00:11:40] "POST /socket.io/?EIO=4&transport=polling&t=PZtg_uQ&sid=puq-bX5VkiiAOm7SAAAI HTTP/1.1" 200 -
+2025-08-30 00:11:40,933 - INFO     [werkzeug] 192.168.1.110 - - [30/Aug/2025 00:11:40] "GET /socket.io/?EIO=4&transport=polling&t=PZtg_uT&sid=puq-bX5VkiiAOm7SAAAI HTTP/1.1" 200 -
+2025-08-30 00:11:40,969 - INFO     [werkzeug] 192.168.1.110 - - [30/Aug/2025 00:11:40] "GET /socket.io/?EIO=4&transport=polling&t=PZtg_v4&sid=puq-bX5VkiiAOm7SAAAI HTTP/1.1" 200 -
+2025-08-30 00:11:41,585 - DEBUG    [root] BBox filtering excluded 12 nodes
+2025-08-30 00:11:41,699 - DEBUG    [browser_use.dom.debug.highlights] Enhanced CSP-safe highlighting injected for 29 elements
+2025-08-30 00:11:42,147 - INFO     [Agent] 
+
+2025-08-30 00:11:42,184 - DEBUG    [browser_use.agent.message_manager.service] Added long_term_memory to action_results: Navigated to https://demoblaze.com/
+2025-08-30 00:11:42,186 - DEBUG    [browser_use.agent.message_manager.service] 
+2025-08-30 00:11:51,221 - DEBUG    [browser_use.tokens.service] Token cost service: model='gemini-2.5-flash' timestamp=datetime.datetime(2025, 8, 30, 0, 11, 51, 221363) usage=ChatInvokeUsage(prompt_tokens=5120, prompt_cached_tokens=None, prompt_cache_creation_tokens=None, prompt_image_tokens=258, completion_tokens=637, total_tokens=5757)
+2025-08-30 00:11:57,512 - DEBUG    [root] BBox filtering excluded 12 nodes
+2025-08-30 00:11:57,617 - DEBUG    [browser_use.dom.debug.highlights] Enhanced CSP-safe highlighting injected for 35 elements
+2025-08-30 00:11:57,959 - INFO     [Agent] 
+
+2025-08-30 00:11:57,993 - DEBUG    [browser_use.agent.message_manager.service] Added long_term_memory to action_results: Clicked element with index 4
+2025-08-30 00:11:57,993 - DEBUG    [browser_use.agent.message_manager.service] Added long_term_memory to action_results: Data written to file todo.md successfully.
+2025-08-30 00:11:57,994 - DEBUG    [browser_use.agent.message_manager.service] 
+2025-08-30 00:12:05,127 - DEBUG    [browser_use.tokens.service] Token cost service: model='gemini-2.5-flash' timestamp=datetime.datetime(2025, 8, 30, 0, 12, 5, 127572) usage=ChatInvokeUsage(prompt_tokens=5453, prompt_cached_tokens=None, prompt_cache_creation_tokens=None, prompt_image_tokens=258, completion_tokens=479, total_tokens=5932)
+2025-08-30 00:12:06,063 - INFO     [werkzeug] 192.168.1.110 - - [30/Aug/2025 00:12:06] "GET /socket.io/?EIO=4&transport=websocket&sid=puq-bX5VkiiAOm7SAAAI HTTP/1.1" 200 -
+2025-08-30 00:12:06,076 - INFO     [werkzeug] 192.168.1.110 - - [30/Aug/2025 00:12:06] "GET / HTTP/1.1" 200 -
+2025-08-30 00:12:06,192 - INFO     [werkzeug] 192.168.1.110 - - [30/Aug/2025 00:12:06] "GET /socket.io/?EIO=4&transport=polling&t=PZth62Y HTTP/1.1" 200 -
+2025-08-30 00:12:06,193 - INFO     [werkzeug] 192.168.1.110 - - [30/Aug/2025 00:12:06] "GET /api/config HTTP/1.1" 200 -
+2025-08-30 00:12:06,269 - INFO     [werkzeug] 192.168.1.110 - - [30/Aug/2025 00:12:06] "POST /socket.io/?EIO=4&transport=polling&t=PZth64E&sid=d32KMyHh5TQ6kGSkAAAK HTTP/1.1" 200 -
+2025-08-30 00:12:06,271 - INFO     [werkzeug] 192.168.1.110 - - [30/Aug/2025 00:12:06] "GET /socket.io/?EIO=4&transport=polling&t=PZth64H&sid=d32KMyHh5TQ6kGSkAAAK HTTP/1.1" 200 -
+2025-08-30 00:12:06,313 - INFO     [werkzeug] 192.168.1.110 - - [30/Aug/2025 00:12:06] "GET /socket.io/?EIO=4&transport=polling&t=PZth65B&sid=d32KMyHh5TQ6kGSkAAAK HTTP/1.1" 200 -
+2025-08-30 00:12:10,691 - DEBUG    [root] BBox filtering excluded 12 nodes
+2025-08-30 00:12:10,799 - DEBUG    [browser_use.dom.debug.highlights] Enhanced CSP-safe highlighting injected for 29 elements
+2025-08-30 00:12:11,245 - INFO     [Agent] 
+
+2025-08-30 00:12:11,282 - DEBUG    [browser_use.agent.message_manager.service] Added long_term_memory to action_results: Clicked element with index 6
+2025-08-30 00:12:11,283 - DEBUG    [browser_use.agent.message_manager.service] 
+2025-08-30 00:12:24,720 - DEBUG    [browser_use.tokens.service] Token cost service: model='gemini-2.5-flash' timestamp=datetime.datetime(2025, 8, 30, 0, 12, 24, 720042) usage=ChatInvokeUsage(prompt_tokens=5488, prompt_cached_tokens=None, prompt_cache_creation_tokens=None, prompt_image_tokens=258, completion_tokens=606, total_tokens=6094)
+2025-08-30 00:12:25,776 - DEBUG    [root] BBox filtering excluded 12 nodes
+2025-08-30 00:12:25,890 - DEBUG    [browser_use.dom.debug.highlights] Enhanced CSP-safe highlighting injected for 29 elements
+2025-08-30 00:12:33,019 - DEBUG    [root] BBox filtering excluded 12 nodes
+2025-08-30 00:12:33,124 - DEBUG    [browser_use.dom.debug.highlights] Enhanced CSP-safe highlighting injected for 35 elements
+2025-08-30 00:12:33,483 - INFO     [Agent] 
+
+2025-08-30 00:12:33,519 - DEBUG    [browser_use.agent.message_manager.service] Added long_term_memory to action_results: Successfully replaced all occurrences of "- [ ] Locate and examine the 'About us' section" with "- [x] Locate and examine the 'About us' section" in file todo.md
+2025-08-30 00:12:33,519 - DEBUG    [browser_use.agent.message_manager.service] Added long_term_memory to action_results: Clicked element with index 4
+2025-08-30 00:12:33,520 - DEBUG    [browser_use.agent.message_manager.service] 
+2025-08-30 00:12:43,001 - DEBUG    [browser_use.tokens.service] Token cost service: model='gemini-2.5-flash' timestamp=datetime.datetime(2025, 8, 30, 0, 12, 43, 1433) usage=ChatInvokeUsage(prompt_tokens=5779, prompt_cached_tokens=None, prompt_cache_creation_tokens=None, prompt_image_tokens=258, completion_tokens=827, total_tokens=6606)
+2025-08-30 00:12:44,605 - DEBUG    [root] BBox filtering excluded 12 nodes
+2025-08-30 00:12:44,717 - DEBUG    [browser_use.dom.debug.highlights] Enhanced CSP-safe highlighting injected for 35 elements
+2025-08-30 00:12:50,026 - DEBUG    [root] BBox filtering excluded 12 nodes
+2025-08-30 00:12:50,135 - DEBUG    [browser_use.dom.debug.highlights] Enhanced CSP-safe highlighting injected for 29 elements
+2025-08-30 00:12:50,588 - INFO     [Agent] 
+
+2025-08-30 00:12:50,624 - DEBUG    [browser_use.agent.message_manager.service] Added long_term_memory to action_results: Data written to file results.md successfully.
+2025-08-30 00:12:50,624 - DEBUG    [browser_use.agent.message_manager.service] Added long_term_memory to action_results: Successfully replaced all occurrences of "- [ ] Discover all elements within the 'About us' section" with "- [x] Discover all elements within the 'About us' section" in file todo.md
+2025-08-30 00:12:50,624 - DEBUG    [browser_use.agent.message_manager.service] Added long_term_memory to action_results: Clicked element with index 6
+2025-08-30 00:12:50,625 - DEBUG    [browser_use.agent.message_manager.service] 
+2025-08-30 00:12:58,833 - INFO     [werkzeug] 192.168.1.110 - - [30/Aug/2025 00:12:58] "POST /api/stop HTTP/1.1" 200 -
+2025-08-30 00:12:59,895 - DEBUG    [browser_use.tokens.service] Token cost service: model='gemini-2.5-flash' timestamp=datetime.datetime(2025, 8, 30, 0, 12, 59, 895897) usage=ChatInvokeUsage(prompt_tokens=6020, prompt_cached_tokens=3841, prompt_cache_creation_tokens=None, prompt_image_tokens=258, completion_tokens=635, total_tokens=6655)
+2025-08-30 00:13:05,243 - INFO     [werkzeug] 127.0.0.1 - - [30/Aug/2025 00:13:05] "GET /socket.io/?EIO=4&transport=websocket&sid=wStghjgYOSsMHGJJAAAG HTTP/1.1" 200 -
+2025-08-30 00:13:05,266 - INFO     [werkzeug] 127.0.0.1 - - [30/Aug/2025 00:13:05] "GET / HTTP/1.1" 200 -
+2025-08-30 00:13:05,381 - INFO     [werkzeug] 127.0.0.1 - - [30/Aug/2025 00:13:05] "GET /socket.io/?EIO=4&transport=polling&t=PZthKXW HTTP/1.1" 200 -
+2025-08-30 00:13:05,490 - INFO     [werkzeug] 127.0.0.1 - - [30/Aug/2025 00:13:05] "GET /api/config HTTP/1.1" 200 -
+2025-08-30 00:13:05,515 - INFO     [werkzeug] 127.0.0.1 - - [30/Aug/2025 00:13:05] "POST /socket.io/?EIO=4&transport=polling&t=PZthKY1&sid=xMcnFFglZ3KNrJomAAAM HTTP/1.1" 200 -
+2025-08-30 00:13:05,515 - INFO     [werkzeug] 127.0.0.1 - - [30/Aug/2025 00:13:05] "GET /socket.io/?EIO=4&transport=polling&t=PZthKY2&sid=xMcnFFglZ3KNrJomAAAM HTTP/1.1" 200 -
+2025-08-30 00:13:06,728 - DEBUG    [browser_use.agent.service] Cloud authentication started - continuing in background

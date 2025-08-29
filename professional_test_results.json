@@ -1,0 +1,125 @@
+{
+  "test_status": {
+    "is_running": false,
+    "is_paused": false,
+    "current_test_case": 0,
+    "total_test_cases": 0,
+    "progress_percentage": 0,
+    "current_url": "https://demoblaze.com/",
+    "status_message": "Professional testing stopped",
+    "current_focus_area": "about_us",
+    "test_coverage": {
+      "Functional Testing": 85.0,
+      "UI/UX Testing": 90.0,
+      "Responsiveness Testing": 75.0,
+      "Accessibility Testing": 60.0,
+      "Performance Testing": 80.0,
+      "Security Testing": 70.0,
+      "Browser Compatibility": 85.0,
+      "Content Testing": 95.0
+    }
+  },
+  "test_results": {
+    "test_cases": [
+      {
+        "test_id": "BROWSER_TEST_001",
+        "title": "Browser Test: about_us",
+        "description": "Automated browser testing of about_us section",
+        "status": "COMPLETED",
+        "execution_time": 15.5,
+        "created_date": "2025-08-30T00:13:10.117046",
+        "tester": "AI Testing Agent"
+      }
+    ],
+    "bug_reports": [],
+    "test_suites": [],
+    "coverage_reports": [
+      {
+        "timestamp": "2025-08-30T00:13:10.118568",
+        "coverage": {
+          "Functional Testing": 85.0,
+          "UI/UX Testing": 90.0,
+          "Responsiveness Testing": 75.0,
+          "Accessibility Testing": 60.0,
+          "Performance Testing": 80.0,
+          "Security Testing": 70.0,
+          "Browser Compatibility": 85.0,
+          "Content Testing": 95.0
+        }
+      }
+    ],
+    "execution_logs": [
+      {
+        "timestamp": "00:11:32",
+        "level": "INFO",
+        "message": "\ud83d\ude80 Starting professional test suite execution...",
+        "datetime": "2025-08-30T00:11:32.407284"
+      },
+      {
+        "timestamp": "00:11:32",
+        "level": "INFO",
+        "message": "Focus Area: about_us",
+        "datetime": "2025-08-30T00:11:32.407284"
+      },
+      {
+        "timestamp": "00:11:32",
+        "level": "INFO",
+        "message": "Website: https://demoblaze.com/",
+        "datetime": "2025-08-30T00:11:32.407284"
+      },
+      {
+        "timestamp": "00:11:32",
+        "level": "INFO",
+        "message": "\ud83d\udd04 Running direct browser testing...",
+        "datetime": "2025-08-30T00:11:32.407284"
+      },
+      {
+        "timestamp": "00:13:10",
+        "level": "SUCCESS",
+        "message": "\u2705 Direct browser testing completed successfully!",
+        "datetime": "2025-08-30T00:13:10.117560"
+      },
+      {
+        "timestamp": "00:13:10",
+        "level": "INFO",
+        "message": "\ud83d\udcca Processing professional test results...",
+        "datetime": "2025-08-30T00:13:10.117560"
+      },
+      {
+        "timestamp": "00:13:10",
+        "level": "INFO",
+        "message": "\ud83d\udccb Processed 1 test cases",
+        "datetime": "2025-08-30T00:13:10.117560"
+      },
+      {
+        "timestamp": "00:13:10",
+        "level": "INFO",
+        "message": "\ud83d\udc1b Processed 0 bug reports",
+        "datetime": "2025-08-30T00:13:10.118568"
+      }
+    ],
+    "recommendations": []
+  },
+  "test_config": {
+    "website_url": "https://demoblaze.com/",
+    "test_focus": "about_us",
+    "provider": "google",
+    "google_api_key": "AIzaSyBOrOwyOCJ-PpU6KIr2hM6kwXnDI1HbK9A",
+    "laminar_api_key": "",
+    "model": "gemini-2.5-flash",
+    "headless": false,
+    "custom_prompt": "test About Us Only",
+    "include_functional": true,
+    "include_ux_usability": false,
+    "include_ui_defects": true,
+    "include_content_defects": true,
+    "include_accessibility": false,
+    "include_performance": false,
+    "include_security": false,
+    "include_responsiveness": false,
+    "window_width": 1920,
+    "window_height": 1080,
+    "api_keys_configured": true
+  },
+  "saved_time": "2025-08-30T00:13:10.118568"
+}

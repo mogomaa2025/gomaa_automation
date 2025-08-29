@@ -1,0 +1,21 @@
+{
+  "website_url": "https://demoblaze.com/",
+  "test_focus": "about_us",
+  "provider": "google",
+  "google_api_key": "AIzaSyBOrOwyOCJ-PpU6KIr2hM6kwXnDI1HbK9A",
+  "laminar_api_key": "",
+  "model": "gemini-2.5-flash",
+  "headless": false,
+  "custom_prompt": "test About Us Only",
+  "include_functional": true,
+  "include_ux_usability": false,
+  "include_ui_defects": true,
+  "include_content_defects": true,
+  "include_accessibility": false,
+  "include_performance": false,
+  "include_security": false,
+  "include_responsiveness": false,
+  "window_width": 1920,
+  "window_height": 1080,
+  "api_keys_configured": true
+}

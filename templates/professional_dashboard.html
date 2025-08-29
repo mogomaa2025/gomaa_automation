@@ -1,0 +1,1569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional AI Automation - Enterprise Testing Suite</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.3rem;
+            opacity: 0.9;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+
+        .config-section, .results-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+
+        .section-title {
+            font-size: 1.6rem;
+            margin-bottom: 25px;
+            color: #2a5298;
+            border-bottom: 3px solid #e2e8f0;
+            padding-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #2a5298;
+            font-size: 14px;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #2a5298;
+            box-shadow: 0 0 0 3px rgba(42, 82, 152, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+        }
+
+        .btn {
+            background: #2a5298;
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+            margin-right: 12px;
+            margin-bottom: 12px;
+        }
+
+        .btn:hover {
+            background: #1e3c72;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(42, 82, 152, 0.3);
+        }
+
+        .btn-success { background: #059669; }
+        .btn-success:hover { background: #047857; }
+
+        .btn-warning { background: #d97706; }
+        .btn-warning:hover { background: #b45309; }
+
+        .btn-danger { background: #dc2626; }
+        .btn-danger:hover { background: #b91c1c; }
+
+        .btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid;
+        }
+
+        .alert-info {
+            background: #eff6ff;
+            border-color: #3b82f6;
+            color: #1e40af;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+
+        .alert-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            max-width: 400px;
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .alert-info {
+            background: #eff6ff;
+            border-color: #3b82f6;
+            color: #1e40af;
+        }
+
+        .alert-success {
+            background: #f0fdf4;
+            border-color: #22c55e;
+            color: #15803d;
+        }
+
+        .alert-error {
+            background: #fef2f2;
+            border-color: #ef4444;
+            color: #dc2626;
+        }
+
+        .alert-close {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            color: inherit;
+            opacity: 0.7;
+        }
+
+        .alert-close:hover {
+            opacity: 1;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .status-bar {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            border-left: 5px solid #2a5298;
+        }
+
+        .status-text {
+            font-weight: 600;
+            color: #2a5298;
+            font-size: 16px;
+        }
+
+        .progress-container {
+            margin-bottom: 25px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 25px;
+            background: #e2e8f0;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #059669, #047857);
+            transition: width 0.3s ease;
+            border-radius: 12px;
+        }
+
+        .progress-text {
+            text-align: center;
+            font-weight: 600;
+            color: #2a5298;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-top: 25px;
+        }
+
+        .results-panel {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .results-panel h3 {
+            margin-bottom: 20px;
+            color: #2a5298;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .result-item {
+            background: white;
+            padding: 15px;
+            margin-bottom: 12px;
+            border-radius: 8px;
+            border-left: 4px solid #2a5298;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .result-item.passed { border-left-color: #059669; }
+        .result-item.failed { border-left-color: #dc2626; }
+        .result-item.in_progress { border-left-color: #2a5298; }
+        .result-item.medium { border-left-color: #d97706; }
+        .result-item.low { border-left-color: #6b7280; }
+
+        .test-case-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .test-case-id {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: #6b7280;
+            background: #f3f4f6;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .test-case-status {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .test-case-status.passed {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .test-case-status.failed {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .test-case-status.in_progress {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .test-steps {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .test-step {
+            background: #f9fafb;
+            padding: 15px;
+            margin-bottom: 12px;
+            border-radius: 8px;
+            border-left: 4px solid #d1d5db;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .test-step.passed { 
+            border-left-color: #059669; 
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+        }
+        .test-step.failed { 
+            border-left-color: #dc2626; 
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+        }
+
+        .step-number {
+            font-weight: 600;
+            color: #2a5298;
+            margin-right: 8px;
+        }
+
+        .coverage-chart {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 25px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .coverage-chart h3 {
+            margin-bottom: 20px;
+            color: #2a5298;
+            text-align: center;
+        }
+
+        .log-container {
+            background: #1f2937;
+            color: #e5e7eb;
+            padding: 20px;
+            border-radius: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            margin-top: 25px;
+        }
+
+        .log-entry {
+            margin-bottom: 8px;
+            padding: 4px 0;
+            border-bottom: 1px solid #374151;
+        }
+
+        .log-timestamp {
+            color: #9ca3af;
+            margin-right: 8px;
+        }
+
+        .log-level {
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-right: 8px;
+        }
+
+        .log-level.INFO { background: #3b82f6; color: white; }
+        .log-level.SUCCESS { background: #059669; color: white; }
+        .log-level.ERROR { background: #dc2626; color: white; }
+        .log-level.WARNING { background: #d97706; color: white; }
+
+        .control-buttons {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .bug-checklist {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 25px;
+        }
+
+        .bug-checklist h3 {
+            margin-bottom: 20px;
+            color: #2a5298;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .checklist-category {
+            background: white;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #2a5298;
+        }
+
+        .checklist-category h4 {
+            color: #2a5298;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .checklist-items {
+            list-style: none;
+        }
+
+        .checklist-items li {
+            padding: 6px 0;
+            border-bottom: 1px solid #f3f4f6;
+            font-size: 14px;
+            color: #4b5563;
+        }
+
+        .checklist-items li:last-child {
+            border-bottom: none;
+        }
+
+        .checklist-items li::before {
+            content: "✓";
+            color: #059669;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+        
+        /* Enhanced Checklist Styling */
+        .enhanced-checklist {
+            margin-top: 20px;
+        }
+        
+        .enhanced-checklist .checklist-category {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .enhanced-checklist .checklist-category:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .enhanced-checklist .checklist-category h4 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e2e8f0;
+            color: #1e40af;
+        }
+        
+        .test-scope, .test-elements, .ai-methods {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8fafc;
+            border-radius: 6px;
+            border-left: 3px solid #3b82f6;
+        }
+        
+        .test-scope strong, .test-elements strong, .ai-methods strong {
+            color: #1e40af;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .test-scope, .test-elements, .ai-methods {
+            margin-bottom: 15px;
+        }
+        
+        .test-scope {
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            border-left-color: #3b82f6;
+        }
+        
+        .test-elements {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border-left-color: #16a34a;
+        }
+        
+        .ai-methods {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-left-color: #f59e0b;
+        }
+        
+        .test-scope ul, .test-elements ul, .ai-methods ul {
+            margin-top: 10px;
+            list-style: none;
+        }
+        
+        .test-scope li, .test-elements li, .ai-methods li {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            font-size: 14px;
+            color: #374151;
+            position: relative;
+            padding-left: 20px;
+        }
+        
+        .test-scope li:last-child, .test-elements li:last-child, .ai-methods li:last-child {
+            border-bottom: none;
+        }
+        
+        .test-scope li::before {
+            content: "🎯";
+            position: absolute;
+            left: 0;
+            color: #3b82f6;
+        }
+        
+        .test-elements li::before {
+            content: "✅";
+            position: absolute;
+            left: 0;
+            color: #16a34a;
+        }
+        
+        .ai-methods li::before {
+            content: "🤖";
+            position: absolute;
+            left: 0;
+            color: #f59e0b;
+        }
+        
+        .checklist-info {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .checklist-info p {
+            margin-bottom: 15px;
+            color: #0c4a6e;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        
+        #load_checklist_btn {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(59, 130, 246, 0.25);
+        }
+        
+        #load_checklist_btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(59, 130, 246, 0.35);
+        }
+        
+        #load_checklist_btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        @media (max-width: 1200px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .control-buttons {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .header h1 {
+                font-size: 2.2rem;
+            }
+            
+            .config-section, .results-section {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏢 Professional AI Automation</h1>
+            <p>Enterprise-Grade Software Testing Suite with Senior Tester Intelligence</p>
+        </div>
+
+        <!-- Alert Container for Notifications -->
+        <div id="alertContainer" class="alert-container"></div>
+
+        <div class="main-grid">
+            <!-- Configuration Section -->
+            <div class="config-section">
+                <h2 class="section-title">⚙️ Professional Test Configuration</h2>
+                <div class="alert alert-info" style="margin-bottom: 20px;">
+                    <strong>🚀 Getting Started:</strong> To begin testing, you need to:
+                    <ol style="margin: 10px 0 0 20px;">
+                        <li>Enter your <strong>Google Gemini API key</strong> (get it from <a href="https://makersuite.google.com/app/apikey" target="_blank" style="color: #3b82f6;">Google AI Studio</a>)</li>
+                        <li>Verify the <strong>website URL</strong> you want to test</li>
+                        <li>Select your preferred <strong>test focus area</strong></li>
+                        <li>Click <strong>"Start Professional Testing"</strong></li>
+                    </ol>
+                </div>
+                
+                <div class="form-group">
+                    <label for="website_url">Website URL: <span style="color: red;">*</span></label>
+                    <input type="url" id="website_url" placeholder="https://example.com" value="https://demoblaze.com/" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="test_focus">Test Focus Area:</label>
+                    <select id="test_focus">
+                        <option value="about_us">About Us</option>
+                        <option value="contact">Contact</option>
+                        <option value="products">Products</option>
+                        <option value="services">Services</option>
+                        <option value="homepage">Homepage</option>
+                        <option value="custom">Custom</option>
+                    </select>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="provider">AI Provider:</label>
+                        <select id="provider">
+                            <option value="google">Google Gemini</option>
+                            <option value="openai">OpenAI GPT</option>
+                            <option value="groq">Groq</option>
+                            <option value="ollama">Ollama</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="model">AI Model:</label>
+                        <select id="model">
+                            <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
+                            <option value="gpt-4o">GPT-4o</option>
+                            <option value="llama3.1-8b">Llama 3.1 8B</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="api_key">API Key: <span style="color: red;">*</span></label>
+                    <input type="password" id="api_key" placeholder="Enter your Google Gemini API key" required>
+                    <small style="color: #6b7280; font-size: 12px;">
+                        Get your API key from: <a href="https://makersuite.google.com/app/apikey" target="_blank" style="color: #3b82f6;">Google AI Studio</a>
+                    </small>
+                </div>
+
+                <div class="form-group">
+                    <label for="test_priority">Test Priority:</label>
+                    <div class="alert alert-info">
+                        <strong>🤖 AI-Automated Priority System</strong><br>
+                        <small>Test priority is automatically determined by AI based on:</small>
+                        <ul style="margin: 10px 0 0 20px; font-size: 13px;">
+                            <li><strong>Criticality:</strong> System crashes, data loss, security breaches</li>
+                            <li><strong>User Impact:</strong> Number of users affected, workflow disruption</li>
+                            <li><strong>Business Impact:</strong> Revenue loss, compliance violations</li>
+                            <li><strong>Technical Severity:</strong> Code complexity, fix difficulty</li>
+                            <li><strong>Regression Risk:</strong> Potential for breaking other features</li>
+                        </ul>
+                        <small style="color: #6b7280;">The AI analyzes each bug and assigns P1 (Critical) to P4 (Low) automatically</small>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Testing Scope:</label>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="include_functional" checked>
+                        <label for="include_functional">Functional Defects</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="include_ux_usability" checked>
+                        <label for="include_ux_usability">User Experience and Usability Issues</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="include_ui_defects" checked>
+                        <label for="include_ui_defects">UI Defects</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="include_content_defects" checked>
+                        <label for="include_content_defects">Content Defects</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="include_accessibility" checked>
+                        <label for="include_accessibility">Accessibility Issues</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="include_performance" checked>
+                        <label for="include_performance">Performance Issues</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="include_security" checked>
+                        <label for="include_security">Security Issues</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="include_responsiveness" checked>
+                        <label for="include_responsiveness">Responsiveness Issues</label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="headless"> Headless Mode
+                    </label>
+                </div>
+
+                <div class="form-group">
+                    <label for="custom_prompt">Custom Testing Instructions:</label>
+                    <textarea id="custom_prompt" rows="4" placeholder="Add your own professional testing rules and requirements..."></textarea>
+                </div>
+
+                <div class="control-buttons">
+                    <button class="btn btn-success" onclick="saveConfiguration()">💾 Save Configuration</button>
+                    <button class="btn" onclick="loadConfiguration()">📂 Load Configuration</button>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div class="results-section">
+                <h2 class="section-title">📊 Professional Test Results</h2>
+                
+                <div class="status-bar">
+                    <div class="status-text" id="status_text">Ready for professional testing</div>
+                </div>
+
+                <div class="progress-container" id="progress_container" style="display: none;">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress_fill" style="width: 0%"></div>
+                    </div>
+                    <div class="progress-text" id="progress_text">0 / 0 test cases</div>
+                </div>
+
+                <div class="control-buttons">
+                    <button class="btn btn-success" id="startBtn" onclick="startTest()">🚀 Start Professional Testing</button>
+                    <button class="btn btn-warning" id="pauseBtn" onclick="pauseTest()" disabled>⏸️ Pause</button>
+                    <button class="btn btn-danger" id="stopBtn" onclick="stopTest()" disabled>⏹️ Stop</button>
+                </div>
+
+                <div class="results-grid">
+                    <div class="results-panel">
+                        <h3>📋 Test Cases</h3>
+                        <div id="test_cases_list">
+                            <div class="result-item">No test cases executed yet</div>
+                        </div>
+                    </div>
+                    <div class="results-panel">
+                        <h3>🐛 Bug Reports</h3>
+                        <div id="bug_reports_list">
+                            <div class="result-item">No bugs found yet</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="coverage-chart">
+                    <h3>📈 Test Coverage Analysis</h3>
+                    <canvas id="coverageChart" width="400" height="200"></canvas>
+                </div>
+
+                <div class="control-buttons">
+                    <button class="btn" onclick="saveResults()">💾 Save Results</button>
+                    <button class="btn" onclick="loadResults()">📂 Load Results</button>
+                    <button class="btn" onclick="clearResults()">🗑️ Clear Results</button>
+                    <button class="btn" onclick="loadSampleData()">📋 Load Sample Data</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Enhanced AI Bug Detection Checklist Section -->
+        <div class="bug-checklist">
+            <h3>🤖 AI-Powered Bug Detection Checklist</h3>
+            <div id="enhanced_checklist_content">
+                <div class="checklist-info">
+                    <p>This enhanced checklist uses AI detection methods and comprehensive test scopes to identify issues across all testing categories.</p>
+                    <button id="load_checklist_btn" class="btn btn-primary">Load Enhanced Checklist</button>
+                </div>
+                <div id="dynamic_checklist_content" style="display: none;">
+                    <!-- Dynamic checklist content will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity Log -->
+        <div class="log-container">
+            <h3>📝 Professional Testing Activity Log</h3>
+            <div id="log_entries">
+                <div class="log-entry">
+                    <span class="log-timestamp">[System]</span>
+                    <span class="log-level INFO">INFO</span>
+                    Professional AI Automation ready. Configure settings and start testing.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const socket = io();
+        let isTestRunning = false;
+        let coverageChart = null;
+
+        // Socket.IO event handlers
+        socket.on('connect', function() {
+            console.log('Connected to server');
+            addLogEntry('Connected to Professional AI Automation server', 'System', 'INFO');
+            updateButtonStates(); // Update button states on connection
+        });
+
+        socket.on('status_update', function(data) {
+            updateStatus(data);
+        });
+
+        socket.on('results_update', function(data) {
+            updateResults(data);
+        });
+
+        socket.on('log_message', function(data) {
+            addLogEntry(data.message, data.level, data.level);
+        });
+
+        socket.on('test_completed', function(data) {
+            handleTestCompleted(data);
+        });
+
+        socket.on('test_stopped', function(data) {
+            handleTestStopped(data);
+        });
+
+        // Configuration management
+        function saveConfiguration() {
+            const config = {
+                website_url: document.getElementById('website_url').value,
+                test_focus: document.getElementById('test_focus').value,
+                provider: document.getElementById('provider').value,
+                api_key: document.getElementById('api_key').value,
+                model: document.getElementById('model').value,
+                include_functional: document.getElementById('include_functional').checked,
+                include_ux_usability: document.getElementById('include_ux_usability').checked,
+                include_ui_defects: document.getElementById('include_ui_defects').checked,
+                include_content_defects: document.getElementById('include_content_defects').checked,
+                include_accessibility: document.getElementById('include_accessibility').checked,
+                include_performance: document.getElementById('include_performance').checked,
+                include_security: document.getElementById('include_security').checked,
+                include_responsiveness: document.getElementById('include_responsiveness').checked,
+                headless: document.getElementById('headless').checked,
+                custom_prompt: document.getElementById('custom_prompt').value
+            };
+
+            fetch('/api/config', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(config)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'updated') {
+                    addLogEntry('Configuration saved successfully', 'System', 'SUCCESS');
+                }
+            })
+            .catch(error => {
+                addLogEntry('Error saving configuration: ' + error, 'Error', 'ERROR');
+            });
+        }
+
+        function loadConfiguration() {
+            fetch('/api/config')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('website_url').value = data.website_url || '';
+                document.getElementById('test_focus').value = data.test_focus || 'about_us';
+                document.getElementById('provider').value = data.provider || 'google';
+                document.getElementById('api_key').value = data.api_key || '';
+                document.getElementById('model').value = data.model || 'gemini-2.5-flash';
+                document.getElementById('include_functional').checked = data.include_functional !== false;
+                document.getElementById('include_ux_usability').checked = data.include_ux_usability !== false;
+                document.getElementById('include_ui_defects').checked = data.include_ui_defects !== false;
+                document.getElementById('include_content_defects').checked = data.include_content_defects !== false;
+                document.getElementById('include_accessibility').checked = data.include_accessibility !== false;
+                document.getElementById('include_performance').checked = data.include_performance !== false;
+                document.getElementById('include_security').checked = data.include_security !== false;
+                document.getElementById('include_responsiveness').checked = data.include_responsiveness !== false;
+                document.getElementById('headless').checked = data.headless || false;
+                document.getElementById('custom_prompt').value = data.custom_prompt || '';
+                
+                addLogEntry('Configuration loaded', 'System', 'SUCCESS');
+            })
+            .catch(error => {
+                addLogEntry('Error loading configuration: ' + error, 'Error', 'ERROR');
+            });
+        }
+
+        // Test control functions
+        function startTest() {
+            // Validate required fields
+            const apiKey = document.getElementById('api_key').value.trim();
+            if (!apiKey) {
+                addLogEntry('❌ Google Gemini API key is required. Please enter your API key in the configuration section.', 'Error', 'ERROR');
+                document.getElementById('api_key').focus();
+                return;
+            }
+
+            const websiteUrl = document.getElementById('website_url').value.trim();
+            if (!websiteUrl) {
+                addLogEntry('❌ Website URL is required. Please enter a valid URL.', 'Error', 'ERROR');
+                document.getElementById('website_url').focus();
+                return;
+            }
+
+            const config = {
+                website_url: websiteUrl,
+                test_focus: document.getElementById('test_focus').value,
+                provider: document.getElementById('provider').value,
+                api_key: apiKey,
+                model: document.getElementById('model').value,
+                include_functional: document.getElementById('include_functional').checked,
+                include_ux_usability: document.getElementById('include_ux_usability').checked,
+                include_ui_defects: document.getElementById('include_ui_defects').checked,
+                include_content_defects: document.getElementById('include_content_defects').checked,
+                include_accessibility: document.getElementById('include_accessibility').checked,
+                include_performance: document.getElementById('include_performance').checked,
+                include_security: document.getElementById('include_security').checked,
+                include_responsiveness: document.getElementById('include_responsiveness').checked,
+                headless: document.getElementById('headless').checked,
+                custom_prompt: document.getElementById('custom_prompt').value
+            };
+
+            fetch('/api/start', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(config)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'started') {
+                    isTestRunning = true;
+                    updateButtonStates();
+                    addLogEntry('Professional testing started', 'System', 'SUCCESS');
+                } else {
+                    addLogEntry('Error starting test: ' + data.error, 'Error', 'ERROR');
+                }
+            })
+            .catch(error => {
+                addLogEntry('Error starting test: ' + error, 'Error', 'ERROR');
+            });
+        }
+
+        function pauseTest() {
+            fetch('/api/pause', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'paused') {
+                    document.getElementById('pauseBtn').textContent = '▶️ Resume';
+                    addLogEntry('Professional testing paused', 'System', 'INFO');
+                } else if (data.status === 'resumed') {
+                    document.getElementById('pauseBtn').textContent = '⏸️ Pause';
+                    addLogEntry('Professional testing resumed', 'System', 'SUCCESS');
+                }
+            })
+            .catch(error => {
+                addLogEntry('Error pausing/resuming test: ' + error, 'Error', 'ERROR');
+            });
+        }
+
+        function stopTest() {
+            fetch('/api/stop', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'stopped') {
+                    isTestRunning = false;
+                    updateButtonStates();
+                    addLogEntry('Professional testing stopped', 'System', 'INFO');
+                }
+            })
+            .catch(error => {
+                addLogEntry('Error stopping test: ' + error, 'Error', 'ERROR');
+            });
+        }
+
+        // Add event listeners for input validation
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add input event listeners for real-time validation
+            document.getElementById('api_key').addEventListener('input', updateButtonStates);
+            document.getElementById('website_url').addEventListener('input', updateButtonStates);
+            
+            // Initial button state update
+            updateButtonStates();
+        });
+
+        // Results management
+        function saveResults() {
+            fetch('/api/save_results')
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'saved') {
+                    addLogEntry('Results saved to file', 'System', 'SUCCESS');
+                }
+            })
+            .catch(error => {
+                addLogEntry('Error saving results: ' + error, 'Error', 'ERROR');
+            });
+        }
+
+        function loadResults() {
+            fetch('/api/load_results')
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'loaded') {
+                    addLogEntry('Results loaded from file', 'System', 'SUCCESS');
+                } else {
+                    addLogEntry('Error loading results: ' + data.error, 'Error', 'ERROR');
+                }
+            })
+            .catch(error => {
+                addLogEntry('Error loading results: ' + error, 'Error', 'ERROR');
+            });
+        }
+
+        function clearResults() {
+            fetch('/api/clear_results')
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'cleared') {
+                    addLogEntry('Results cleared', 'System', 'INFO');
+                }
+            })
+            .catch(error => {
+                addLogEntry('Error clearing results: ' + error, 'Error', 'ERROR');
+            });
+        }
+
+        function loadSampleData() {
+            fetch('/api/load_sample_data')
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'sample_data_loaded') {
+                    addLogEntry('Sample professional data loaded', 'System', 'SUCCESS');
+                }
+            })
+            .catch(error => {
+                addLogEntry('Error loading sample data: ' + error, 'Error', 'ERROR');
+            });
+        }
+
+        // UI update functions
+        function updateStatus(data) {
+            document.getElementById('status_text').textContent = data.status_message || 'Ready for professional testing';
+            
+            if (data.is_running) {
+                isTestRunning = true;
+                updateButtonStates();
+            } else {
+                isTestRunning = false;
+                updateButtonStates();
+            }
+        }
+
+        function updateTestSummary(data) {
+            if (data.test_cases && data.test_cases.length > 0) {
+                const totalTests = data.test_cases.length;
+                const passedTests = data.test_cases.filter(test => test.status === 'COMPLETED').length;
+                const totalBugs = data.bug_reports ? data.bug_reports.length : 0;
+                
+                const summaryText = `Tests: ${passedTests}/${totalTests} completed | Bugs Found: ${totalBugs}`;
+                document.getElementById('status_text').textContent = summaryText;
+            }
+        }
+
+        function updateResults(data) {
+            // Update test cases
+            const testCasesList = document.getElementById('test_cases_list');
+            if (data.test_cases && data.test_cases.length > 0) {
+                testCasesList.innerHTML = data.test_cases.map(test => 
+                    `<div class="result-item ${test.status.toLowerCase()}">
+                        <div class="test-case-header">
+                            <div class="test-case-id">${test.test_id}</div>
+                            <div class="test-case-status ${test.status.toLowerCase()}">${test.status}</div>
+                        </div>
+                        <strong>${test.title}</strong><br>
+                        <small>Priority: ${test.priority || 'N/A'} | Execution Time: ${test.execution_time ? test.execution_time.toFixed(2) + 's' : 'N/A'}</small>
+                        <div class="test-steps">
+                            ${test.test_steps && test.test_steps.length > 0 ? test.test_steps.map(step => 
+                                `<div class="test-step ${step.status.toLowerCase()}">
+                                    <span class="step-number">${step.step_number}.</span>
+                                    <strong>${step.action}</strong><br>
+                                    <small>Expected: ${step.expected_result}</small>
+                                    ${step.actual_result ? `<br><small>Actual: ${step.actual_result}</small>` : ''}
+                                    <br><small>Status: <span class="test-case-status ${step.status.toLowerCase()}">${step.status}</span></small>
+                                </div>`
+                            ).join('') : '<div class="test-step">No detailed test steps available</div>'}
+                        </div>
+                    </div>`
+                ).join('');
+            } else {
+                testCasesList.innerHTML = '<div class="result-item">No test cases executed yet</div>';
+            }
+
+            // Update bug reports
+            const bugReportsList = document.getElementById('bug_reports_list');
+            if (data.bug_reports && data.bug_reports.length > 0) {
+                bugReportsList.innerHTML = data.bug_reports.map(bug => 
+                    `<div class="result-item ${bug.severity.toLowerCase()}">
+                        <div class="test-case-header">
+                            <div class="test-case-id">${bug.bug_id}</div>
+                            <div class="test-case-status ${bug.severity.toLowerCase()}">${bug.severity}</div>
+                        </div>
+                        <strong>${bug.title}</strong><br>
+                        <small>Category: ${bug.category}</small><br>
+                        <small>${bug.description}</small>
+                        ${bug.steps_to_reproduce ? `<br><small><strong>Steps to reproduce:</strong> ${bug.steps_to_reproduce.join(', ')}</small>` : ''}
+                        ${bug.expected_behavior ? `<br><small><strong>Expected:</strong> ${bug.expected_behavior}</small>` : ''}
+                        ${bug.actual_behavior ? `<br><small><strong>Actual:</strong> ${bug.actual_behavior}</small>` : ''}
+                    </div>`
+                ).join('');
+            } else {
+                bugReportsList.innerHTML = '<div class="result-item">No bugs found yet</div>';
+            }
+
+            // Update coverage chart
+            if (data.coverage_reports && data.coverage_reports.length > 0) {
+                const latestCoverage = data.coverage_reports[data.coverage_reports.length - 1].coverage;
+                updateCoverageChart(latestCoverage);
+            }
+
+            // Update recommendations
+            if (data.recommendations && data.recommendations.length > 0) {
+                // You could add a recommendations section here
+            }
+            
+            // Update test summary
+            updateTestSummary(data);
+        }
+
+        function updateCoverageChart(coverageData) {
+            const ctx = document.getElementById('coverageChart').getContext('2d');
+            
+            if (coverageChart) {
+                coverageChart.destroy();
+            }
+            
+            const labels = Object.keys(coverageData);
+            const data = Object.values(coverageData);
+            
+            coverageChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Test Coverage %',
+                        data: data,
+                        backgroundColor: data.map(value => {
+                            if (value >= 80) return '#059669';
+                            if (value >= 60) return '#d97706';
+                            return '#dc2626';
+                        }),
+                        borderColor: '#2a5298',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateButtonStates() {
+            const startBtn = document.getElementById('startBtn');
+            const pauseBtn = document.getElementById('pauseBtn');
+            const stopBtn = document.getElementById('stopBtn');
+
+            if (isTestRunning) {
+                startBtn.disabled = true;
+                pauseBtn.disabled = false;
+                stopBtn.disabled = false;
+            } else {
+                // Check if configuration is valid
+                const apiKey = document.getElementById('api_key').value.trim();
+                const websiteUrl = document.getElementById('website_url').value.trim();
+                
+                if (apiKey && websiteUrl) {
+                    startBtn.disabled = false;
+                    startBtn.title = 'Click to start professional testing';
+                } else {
+                    startBtn.disabled = true;
+                    startBtn.title = 'Please enter API key and website URL to start testing';
+                }
+                
+                pauseBtn.disabled = true;
+                stopBtn.disabled = true;
+            }
+        }
+
+        // Debounce function for text input
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // Enhanced Checklist Functions
+        function loadEnhancedChecklist() {
+            const checklistContent = document.getElementById('dynamic_checklist_content');
+            const loadBtn = document.getElementById('load_checklist_btn');
+            
+            // Show loading state
+            loadBtn.textContent = 'Loading...';
+            loadBtn.disabled = true;
+            
+            // Simulate loading enhanced checklist (in real implementation, this would fetch from backend)
+            setTimeout(() => {
+                checklistContent.innerHTML = generateEnhancedChecklistHTML();
+                checklistContent.style.display = 'block';
+                loadBtn.textContent = 'Refresh Checklist';
+                loadBtn.disabled = false;
+                addLogEntry('Enhanced AI checklist loaded successfully', 'System', 'SUCCESS');
+            }, 1000);
+        }
+        
+        function generateEnhancedChecklistHTML() {
+            return `
+                <div class="enhanced-checklist">
+                    <div class="checklist-category">
+                        <h4>🔧 Functional Defects</h4>
+                        <div class="test-scope">
+                            <strong>Test Scope:</strong> Core application functionality and business logic validation
+                        </div>
+                        <div class="test-elements">
+                            <strong>Test Elements:</strong>
+                            <ul>
+                                <li>All interactive elements (buttons, links, forms)</li>
+                                <li>Navigation and routing functionality</li>
+                                <li>Data input/output validation</li>
+                                <li>Business rule enforcement</li>
+                                <li>API endpoint functionality</li>
+                                <li>Error handling and recovery</li>
+                                <li>State management and persistence</li>
+                                <li>Workflow completion and validation</li>
+                            </ul>
+                        </div>
+                        <div class="ai-methods">
+                            <strong>AI Detection Methods:</strong>
+                            <ul>
+                                <li>Behavioral Analysis: Observes user interactions and system responses</li>
+                                <li>Pattern Recognition: Identifies inconsistent behavior across similar elements</li>
+                                <li>Logic Validation: Tests business rules and conditional statements</li>
+                                <li>Edge Case Testing: Explores boundary conditions and error scenarios</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="checklist-category">
+                        <h4>🎨 User Experience and Usability Issues</h4>
+                        <div class="test-scope">
+                            <strong>Test Scope:</strong> Visual design, user interaction, and accessibility compliance
+                        </div>
+                        <div class="test-elements">
+                            <strong>Test Elements:</strong>
+                            <ul>
+                                <li>Page layout and visual hierarchy</li>
+                                <li>Responsive design across devices</li>
+                                <li>Typography and readability</li>
+                                <li>Color schemes and contrast</li>
+                                <li>Interactive element behavior</li>
+                                <li>User flow and navigation</li>
+                                <li>Accessibility features</li>
+                                <li>Mobile user experience</li>
+                            </ul>
+                        </div>
+                        <div class="ai-methods">
+                            <strong>AI Detection Methods:</strong>
+                            <ul>
+                                <li>Visual Analysis: Screenshot comparison, element positioning, color analysis</li>
+                                <li>Interaction Testing: User flow simulation, accessibility compliance checking</li>
+                                <li>Performance Metrics: Page load times, interaction responsiveness, animation smoothness</li>
+                                <li>Cross-device Testing: Responsive design validation, device compatibility</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="checklist-category">
+                        <h4>⚡ Performance Bottlenecks</h4>
+                        <div class="test-scope">
+                            <strong>Test Scope:</strong> Application performance, loading speed, and resource optimization
+                        </div>
+                        <div class="test-elements">
+                            <strong>Test Elements:</strong>
+                            <ul>
+                                <li>Page load times and metrics</li>
+                                <li>Resource loading and optimization</li>
+                                <li>Rendering performance</li>
+                                <li>Memory usage and leaks</li>
+                                <li>Network request efficiency</li>
+                                <li>Server response times</li>
+                                <li>Database query performance</li>
+                                <li>Caching effectiveness</li>
+                            </ul>
+                        </div>
+                        <div class="ai-methods">
+                            <strong>AI Detection Methods:</strong>
+                            <ul>
+                                <li>Performance Monitoring: Real-time metrics collection, performance regression detection</li>
+                                <li>Load Testing: Stress testing, capacity planning, bottleneck identification</li>
+                                <li>Resource Analysis: Network usage, CPU utilization, memory consumption</li>
+                                <li>Comparative Analysis: Performance benchmarking, historical trend analysis</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="checklist-category">
+                        <h4>🔒 Security Vulnerabilities</h4>
+                        <div class="test-scope">
+                            <strong>Test Scope:</strong> Security testing, vulnerability assessment, and threat protection
+                        </div>
+                        <div class="test-elements">
+                            <strong>Test Elements:</strong>
+                            <ul>
+                                <li>Authentication mechanisms</li>
+                                <li>Authorization and access control</li>
+                                <li>Input validation and sanitization</li>
+                                <li>Data encryption and protection</li>
+                                <li>Session management</li>
+                                <li>API security</li>
+                                <li>Privacy compliance</li>
+                                <li>Security headers and policies</li>
+                            </ul>
+                        </div>
+                        <div class="ai-methods">
+                            <strong>AI Detection Methods:</strong>
+                            <ul>
+                                <li>Vulnerability Scanning: Automated security testing, penetration testing simulation</li>
+                                <li>Behavioral Analysis: Anomaly detection, suspicious activity identification</li>
+                                <li>Code Analysis: Static code analysis, dependency vulnerability scanning</li>
+                                <li>Threat Modeling: Attack vector identification, risk assessment, mitigation planning</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="checklist-category">
+                        <h4>🌐 Compatibility Problems</h4>
+                        <div class="test-scope">
+                            <strong>Test Scope:</strong> Cross-browser, cross-device, and cross-platform compatibility
+                        </div>
+                        <div class="test-elements">
+                            <strong>Test Elements:</strong>
+                            <ul>
+                                <li>Browser compatibility</li>
+                                <li>Device compatibility</li>
+                                <li>Operating system compatibility</li>
+                                <li>Screen resolution support</li>
+                                <li>Feature detection and fallbacks</li>
+                                <li>Progressive enhancement</li>
+                                <li>Accessibility device support</li>
+                                <li>Cross-platform functionality</li>
+                            </ul>
+                        </div>
+                        <div class="ai-methods">
+                            <strong>AI Detection Methods:</strong>
+                            <ul>
+                                <li>Automated Testing: Cross-browser automation, device simulation</li>
+                                <li>Visual Regression: Screenshot comparison across platforms</li>
+                                <li>Functionality Testing: Feature availability, API support validation</li>
+                                <li>Performance Comparison: Performance metrics across different environments</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function handleTestCompleted(data) {
+            isTestRunning = false;
+            updateButtonStates();
+            addLogEntry('Professional testing completed', 'System', 'SUCCESS');
+        }
+
+        function handleTestStopped(data) {
+            isTestRunning = false;
+            updateButtonStates();
+            addLogEntry('Professional testing stopped by user', 'System', 'INFO');
+        }
+
+        function addLogEntry(message, source, level = 'INFO') {
+            const logEntries = document.getElementById('log_entries');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = 'log-entry';
+            logEntry.innerHTML = `
+                <span class="log-timestamp">[${timestamp}] ${source}:</span>
+                <span class="log-level ${level}">${level}</span>
+                ${message}
+            `;
+            
+            logEntries.appendChild(logEntry);
+            logEntries.scrollTop = logEntries.scrollHeight;
+        }
+
+        // Utility functions
+        function showAlert(message, type = 'info') {
+            const alertContainer = document.getElementById('alertContainer');
+            if (!alertContainer) return;
+
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.innerHTML = `
+                <span class="alert-message">${message}</span>
+                <button class="alert-close" onclick="this.parentElement.remove()">&times;</button>
+            `;
+
+            alertContainer.appendChild(alertDiv);
+
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                if (alertDiv.parentElement) {
+                    alertDiv.remove();
+                }
+            }, 5000);
+        }
+
+        // Auto-save configuration on changes
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add event listeners for all form elements
+            const formElements = [
+                'website_url', 'test_focus', 'provider', 'model',
+                'include_functional', 'include_ux_usability', 'include_ui_defects', 'include_content_defects',
+                'include_accessibility', 'include_performance', 'include_security', 'include_responsiveness',
+                'headless', 'custom_prompt'
+            ];
+            
+            formElements.forEach(elementId => {
+                const element = document.getElementById(elementId);
+                if (element) {
+                    if (element.type === 'checkbox') {
+                        element.addEventListener('change', saveConfiguration);
+                    } else if (element.type === 'textarea') {
+                        element.addEventListener('input', debounce(saveConfiguration, 1000));
+                    } else {
+                        element.addEventListener('change', saveConfiguration);
+                    }
+                }
+            });
+            
+            // Load initial configuration
+            loadConfiguration();
+            
+            // Add event listener for enhanced checklist button
+            const checklistBtn = document.getElementById('load_checklist_btn');
+            if (checklistBtn) {
+                checklistBtn.addEventListener('click', loadEnhancedChecklist);
+            }
+        });
+    </script>
+</body>
+</html>

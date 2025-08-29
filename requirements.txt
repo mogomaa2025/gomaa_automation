@@ -1,0 +1,22 @@
+# Gomaa Automation - Professional AI Testing Suite
+# Install with: uv pip install -r requirements.txt
+
+# Core Flask dependencies
+Flask>=3.0.0
+Flask-SocketIO>=5.3.0
+python-socketio>=5.10.0
+python-engineio>=4.8.0
+
+# AI and browser automation
+browser-use>=0.7.0
+lmnr>=0.1.0
+
+# Data handling and utilities
+python-dateutil>=2.8.0
+pydantic>=2.0.0
+
+# Development and testing (optional)
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+black>=23.11.0
+flake8>=6.1.0
