@@ -256,159 +256,133 @@ class ProfessionalTestController:
 
         return {"bug_reports": bug_reports}
 
-    # This method's logic has been inlined into _run_direct_browser_test for real-time updates
-    
-    async def run_professional_test_suite(self):
-        """Run a complete professional test suite"""
-        try:
-            self.is_running = True
-            test_status["is_running"] = True
-            test_status["status_message"] = "Initializing professional testing framework..."
-            test_status["current_focus_area"] = test_config["test_focus"]
-            
-            self.log("🚀 Starting professional test suite execution...", "INFO")
-            self.log(f"Focus Area: {test_config['test_focus']}", "INFO")
-            self.log(f"Website: {test_config['website_url']}", "INFO")
-            
-            if test_config["laminar_api_key"] and test_config["laminar_api_key"] != "your_laminar_key_here":
-                if initialize_laminar_if_needed():
-                    self.log("✅ Laminar initialized successfully", "SUCCESS")
-                else:
-                    self.log("⚠️  Laminar initialization failed, continuing without it", "WARNING")
-            
-            results = await self._run_direct_browser_test()
-            self._process_test_results(results)
-            
-            self.log("✅ Professional test suite completed successfully!", "SUCCESS")
-            return results
-            
-        except Exception as e:
-            error_msg = f"Professional test suite execution failed: {str(e)}"
-            self.log(error_msg, "ERROR")
-            test_results["bug_reports"].append({
-                "bug_id": f"ERROR_{datetime.now().strftime('%Y%m%d_%H%M%S')}",
-                "title": "Test Suite Execution Error",
-                "description": error_msg,
-                "severity": "CRITICAL",
-                "category": "Technical",
-                "reported_date": datetime.now().isoformat()
-            })
-            
-        finally:
-            self.is_running = False
-            test_status["is_running"] = False
-            test_status["status_message"] = "Professional testing completed"
-            status_data = prepare_data_for_socket(test_status)
-            socketio.emit('status_update', status_data)
-            socketio.emit('test_completed', {"status": "completed"})
-    
-    async def _run_direct_browser_test(self):
-        """Orchestrates the direct browser test, processes results, and provides real-time feedback."""
-        try:
-            self.log("🔄 Running direct browser testing...", "INFO")
-            if not LAMINAR_AVAILABLE:
-                raise ValueError("browser-use is required for testing")
+    def _create_planner_prompt(self, website_url: str):
+        """Creates the prompt for the planner agent."""
+        return f"""
+        You are a senior QA engineer responsible for creating a test plan for the website: {website_url}.
 
-            # Setup agent
+        Your task is to explore the website and generate a comprehensive list of test cases.
+
+        The output must be a JSON object containing a single key "test_cases".
+        The value of "test_cases" must be an array of strings.
+        Each string in the array should be a concise, descriptive name for a single test case.
+
+        Example:
+        {{
+          "test_cases": [
+            "Test user login with valid credentials.",
+            "Test user login with invalid credentials.",
+            "Test adding an item to the shopping cart.",
+            "Test navigating to the 'About Us' page and verifying its content."
+          ]
+        }}
+
+        Please provide only the JSON object as your response. Do not include any other text or explanations.
+        """
+
+    async def generate_test_plan(self, website_url: str):
+        """Runs the planner agent to generate a test plan."""
+        self.log(f"🤖 Starting test plan generation for {website_url}...", "INFO")
+
+        try:
             provider = test_config["provider"]
             model = test_config["model"]
             api_key = test_config.get(f"{provider}_api_key")
+
             llm = create_llm(provider=provider, model=model, api_key=api_key)
-            browser_session = self._create_browser_session()
-            task = self._generate_test_task()
-            agent = Agent(task=task, llm=llm, max_steps=8, browser_session=browser_session)
-            
-            self.log(f"🧠 Generated Agent Task:\n---\n{task}\n---", "INFO")
+            task = self._create_planner_prompt(website_url)
 
-            # Run agent
-            if stop_event.is_set(): return {}
+            agent = Agent(task=task, llm=llm, max_steps=1) # Only one step: generate the plan
+            
             history = await agent.run()
-            self.log(f"📜 Agent run completed. History object returned.", "INFO")
 
-            # Process history for real-time action feedback
-            test_steps = []
-            if history and history.all_results:
-                for i, step in enumerate(history.all_results):
-                    if stop_event.is_set(): break
-                    if hasattr(step, 'action') and step.action:
-                        test_steps.append({
-                            "step_number": i + 1, "action": str(step.action),
-                            "expected_result": "Action should execute successfully",
-                            "status": "PASSED" if not step.error else "FAILED",
-                            "actual_result": str(step.result) if step.result else "Action completed",
-                            "execution_time": getattr(step, 'execution_time', 0)
-                        })
-
-                    test_results['test_cases'] = [{
-                        "test_id": "BROWSER_TEST_001", "title": f"Browser Test",
-                        "status": "IN_PROGRESS", "test_steps": test_steps.copy()
-                    }]
-                    socketio.emit('results_update', prepare_data_for_socket(test_results))
-                    await asyncio.sleep(0.1)
-
-            # Find final report and parse for bugs
-            bug_reports = []
             final_report_text = ""
-            if history and history.all_results:
-                final_step = next((s for s in reversed(history.all_results) if s.is_done), None)
+            if history:
+                # The history object is iterable
+                final_step = next((s for s in reversed(list(history)) if s.is_done), None)
                 if final_step:
-                    final_report_text = final_step.long_term_memory or final_step.extracted_content or ""
-                    self.log(f"📄 Parsing final agent report:\n---\n{final_report_text}\n---", "INFO")
-                    parsed_results = self._parse_final_report(final_report_text)
-                    bug_reports = parsed_results.get("bug_reports", [])
-            
-            # Finalize results
-            final_status = "FAILED" if bug_reports else "COMPLETED"
-            test_results['test_cases'] = [{
-                "test_id": "BROWSER_TEST_001", "title": f"Browser Test",
-                "status": final_status, "test_steps": test_steps
-            }]
-            test_results['bug_reports'] = bug_reports
-            socketio.emit('results_update', prepare_data_for_socket(test_results))
+                    final_report_text = final_step.long_term_memory or ""
 
-            return {
-                "test_cases": test_results['test_cases'], "bug_reports": bug_reports,
-                "execution_log": self.execution_log, "summary": {"test_coverage": {"Functional Testing": 85.0}}
-            }
+            self.log(f"Received test plan from agent: {final_report_text}", "INFO")
+
+            try:
+                json_match = re.search(r"```json\n(.*)\n```", final_report_text, re.DOTALL)
+                if json_match:
+                    json_str = json_match.group(1)
+                    plan = json.loads(json_str)
+                else:
+                    plan = json.loads(final_report_text)
+
+                socketio.emit('test_plan_generated', plan)
+            except json.JSONDecodeError:
+                self.log("Failed to parse JSON from planner agent output.", "ERROR")
+                socketio.emit('test_plan_generated', {"error": "Failed to generate test plan."})
 
         except Exception as e:
-            self.log(f"Direct browser testing failed: {str(e)}", "ERROR")
-            raise
-    
-    def _process_test_results(self, results: Dict[str, Any]):
-        """Process and store test results professionally"""
-        try:
-            self.log("📊 Processing professional test results...", "INFO")
-            
-            if "test_cases" in results:
-                test_results["test_cases"] = results["test_cases"]
-                self.log(f"📋 Processed {len(results['test_cases'])} test cases", "INFO")
-            
-            if "bug_reports" in results:
-                test_results["bug_reports"] = results["bug_reports"]
-                self.log(f"🐛 Processed {len(results['bug_reports'])} bug reports", "INFO")
-            
-            if "execution_log" in results:
-                test_results["execution_logs"].extend(results["execution_log"])
-            
-            if "recommendations" in results:
-                test_results["recommendations"] = results["recommendations"]
-                self.log(f"💡 Generated {len(results['recommendations'])} recommendations", "INFO")
-            
-            if "summary" in results and "test_coverage" in results["summary"]:
-                test_status["test_coverage"] = results["summary"]["test_coverage"]
-                test_results["coverage_reports"].append({
-                    "timestamp": datetime.now().isoformat(),
-                    "coverage": results["summary"]["test_coverage"]
+            self.log(f"Error during test plan generation: {e}", "ERROR")
+            socketio.emit('test_plan_generated', {"error": str(e)})
+
+    def _create_executor_prompt(self, test_case: str):
+        """Creates the prompt for the executor agent."""
+        return f"""
+        You are a meticulous QA test executor. Your sole task is to execute a single test case precisely as described and report the outcome.
+
+        **Website:** {test_config['website_url']}
+        **Test Case to Execute:** {test_case}
+
+        **Instructions:**
+        1.  Follow the steps outlined in the test case.
+        2.  After execution, determine if the test case passed or failed.
+        3.  If it failed, provide a detailed bug report in markdown format.
+        4.  Conclude your response with a single word: `PASS` or `FAIL`.
+        """
+
+    async def run_test_cases(self, test_cases: list):
+        """Runs a list of test cases, one by one."""
+        self.log(f"🤖 Starting execution of {len(test_cases)} test cases...", "INFO")
+
+        for i, test_case in enumerate(test_cases):
+            self.log(f"Running Test Case {i+1}/{len(test_cases)}: {test_case}", "INFO")
+            socketio.emit('test_case_update', {"test_case": test_case, "status": "RUNNING"})
+
+            try:
+                provider = test_config["provider"]
+                model = test_config["model"]
+                api_key = test_config.get(f"{provider}_api_key")
+
+                llm = create_llm(provider=provider, model=model, api_key=api_key)
+                task = self._create_executor_prompt(test_case)
+                agent = Agent(task=task, llm=llm, max_steps=8)
+
+                history = await agent.run()
+
+                final_report_text = ""
+                if history:
+                    final_step = next((s for s in reversed(list(history)) if s.is_done), None)
+                    if final_step:
+                        final_report_text = final_step.long_term_memory or ""
+
+                parsed_results = self._parse_final_report(final_report_text)
+                bugs = parsed_results.get("bug_reports", [])
+                status = "FAIL" if bugs else "PASS"
+
+                socketio.emit('test_case_update', {
+                    "test_case": test_case,
+                    "status": status,
+                    "bugs": bugs
                 })
-            
-            save_results_to_file()
-            results_data = prepare_data_for_socket(test_results)
-            socketio.emit('results_update', results_data)
-            self.log(f"📊 Results processed successfully", "SUCCESS")
-            
-        except Exception as e:
-            self.log(f"Error processing test results: {str(e)}", "ERROR")
+
+            except Exception as e:
+                self.log(f"Error running test case '{test_case}': {e}", "ERROR")
+                socketio.emit('test_case_update', {
+                    "test_case": test_case,
+                    "status": "ERROR",
+                    "error": str(e)
+                })
+
+        self.log("✅ Test execution completed.", "SUCCESS")
+
+    # The old test suite logic is now deprecated in favor of the two-phase workflow.
 
 # ============================================================================
 # FLASK ROUTES
@@ -475,121 +449,6 @@ def update_config():
         save_config_to_file()
         
         return jsonify({"status": "updated", "config": test_config})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-@app.route('/api/start', methods=['POST'])
-def start_test():
-    """Start a new professional test suite"""
-    global test_status, test_results, test_execution_thread
-    
-    try:
-        data = request.json
-        
-        # Update configuration from the start request
-        if data:
-            if 'provider' in data:
-                test_config['provider'] = data['provider']
-            for key, value in data.items():
-                if key == "api_key" and value:
-                    provider = test_config['provider']
-                    if provider == 'google':
-                        test_config['google_api_key'] = value
-                    elif provider == 'openai':
-                        test_config['openai_api_key'] = value
-                    elif provider == 'groq':
-                        test_config['groq_api_key'] = value
-                elif key in test_config:
-                    test_config[key] = value
-        
-        save_config_to_file()
-        
-        if not test_config["website_url"]:
-            return jsonify({"error": "Website URL is required."}), 400
-
-        provider = test_config["provider"]
-        if provider != "ollama":
-            api_key_name = f"{provider}_api_key"
-            api_key = test_config.get(api_key_name)
-            if not api_key:
-                return jsonify({"error": f"{provider.capitalize()} API key is required."}), 400
-        
-        if not LAMINAR_AVAILABLE:
-            return jsonify({"error": "browser-use is required for testing"}), 500
-        
-        test_status.update({
-            "is_running": True, "is_paused": False, "progress_percentage": 0,
-            "current_url": test_config["website_url"], "status_message": "Initializing...",
-            "current_focus_area": test_config["test_focus"], "test_coverage": {}
-        })
-        
-        test_results.update({
-            "test_cases": [], "bug_reports": [], "test_suites": [], "coverage_reports": [],
-            "execution_logs": [], "recommendations": []
-        })
-        
-        save_results_to_file()
-        
-        stop_event.clear()
-        def run_professional_test():
-            try:
-                controller = ProfessionalTestController()
-                asyncio.run(controller.run_professional_test_suite())
-            except Exception as e:
-                error_msg = f"Professional test failed: {str(e)}"
-                print(f"❌ {error_msg}")
-                test_status["status_message"] = f"Error: {str(e)}"
-                test_status["is_running"] = False
-                save_results_to_file()
-                socketio.emit('test_completed', {"status": "failed", "error": str(e)})
-        
-        test_execution_thread = threading.Thread(target=run_professional_test)
-        test_execution_thread.daemon = True
-        test_execution_thread.start()
-        
-        return jsonify({"status": "started", "message": "Professional testing started"})
-        
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-@app.route('/api/stop', methods=['POST'])
-def stop_test():
-    """Stop the current test"""
-    global test_status
-    
-    try:
-        stop_event.set()
-        test_status.update({
-            "is_running": False,
-            "is_paused": False,
-            "status_message": "Stopping professional testing..."
-        })
-        status_data = prepare_data_for_socket(test_status)
-        socketio.emit('status_update', status_data)
-        socketio.emit('test_stopped', {"status": "stopping"})
-        return jsonify({"status": "stopping"})
-        
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-@app.route('/api/pause', methods=['POST'])
-def pause_test():
-    """Pause/resume the current test"""
-    global test_status
-    
-    try:
-        if test_status["is_running"]:
-            if test_status["is_paused"]:
-                test_status["is_paused"] = False
-                test_status["status_message"] = "Professional testing resumed"
-                return jsonify({"status": "resumed"})
-            else:
-                test_status["is_paused"] = True
-                test_status["status_message"] = "Professional testing paused"
-                return jsonify({"status": "paused"})
-        else:
-            return jsonify({"error": "No test running"}), 400
-            
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -757,6 +616,60 @@ def clear_results():
     socketio.emit('status_update', status_data)
     
     return jsonify({"status": "cleared"})
+
+@app.route('/api/run_tests', methods=['POST'])
+def run_tests_route():
+    """Kicks off the test execution in a background thread."""
+    try:
+        data = request.json
+        test_cases = data.get('test_cases')
+        if not test_cases:
+            return jsonify({"error": "No test cases provided."}), 400
+
+        def run_execution_in_background():
+            controller = ProfessionalTestController()
+            asyncio.run(controller.run_test_cases(test_cases))
+
+        thread = threading.Thread(target=run_execution_in_background)
+        thread.daemon = True
+        thread.start()
+
+        return jsonify({"status": "execution_started"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/generate_test_plan', methods=['POST'])
+def generate_test_plan_route():
+    """Kicks off the test plan generation in a background thread."""
+    try:
+        data = request.json
+        website_url = data.get('website_url')
+        if not website_url:
+            return jsonify({"error": "Website URL is required."}), 400
+
+        # Update config from the request
+        test_config['website_url'] = website_url
+        test_config['provider'] = data.get('provider', 'google')
+        test_config['model'] = data.get('model', 'gemini-1.5-flash')
+
+        provider = test_config['provider']
+        api_key = data.get('api_key')
+        if api_key:
+            test_config[f"{provider}_api_key"] = api_key
+
+        save_config_to_file()
+
+        def run_generation_in_background():
+            controller = ProfessionalTestController()
+            asyncio.run(controller.generate_test_plan(website_url))
+
+        thread = threading.Thread(target=run_generation_in_background)
+        thread.daemon = True
+        thread.start()
+
+        return jsonify({"status": "generating_plan"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/api/results/download')
 def download_results():
