@@ -689,18 +689,6 @@
                     <input type="url" id="website_url" placeholder="https://example.com" value="https://demoblaze.com/" required>
                 </div>
 
-                <div class="form-group">
-                    <label for="test_focus">Test Focus Area:</label>
-                    <select id="test_focus">
-                        <option value="about_us">About Us</option>
-                        <option value="contact">Contact</option>
-                        <option value="products">Products</option>
-                        <option value="services">Services</option>
-                        <option value="homepage">Homepage</option>
-                        <option value="custom">Custom</option>
-                    </select>
-                </div>
-
                 <div class="form-row">
                     <div class="form-group">
                         <label for="provider">AI Provider:</label>
@@ -730,66 +718,14 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="test_priority">Test Priority:</label>
-                    <div class="alert alert-info">
-                        <strong>🤖 AI-Automated Priority System</strong><br>
-                        <small>Test priority is automatically determined by AI based on:</small>
-                        <ul style="margin: 10px 0 0 20px; font-size: 13px;">
-                            <li><strong>Criticality:</strong> System crashes, data loss, security breaches</li>
-                            <li><strong>User Impact:</strong> Number of users affected, workflow disruption</li>
-                            <li><strong>Business Impact:</strong> Revenue loss, compliance violations</li>
-                            <li><strong>Technical Severity:</strong> Code complexity, fix difficulty</li>
-                            <li><strong>Regression Risk:</strong> Potential for breaking other features</li>
-                        </ul>
-                        <small style="color: #6b7280;">The AI analyzes each bug and assigns P1 (Critical) to P4 (Low) automatically</small>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Testing Scope:</label>
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="include_functional" checked>
-                        <label for="include_functional">Functional Defects</label>
-                    </div>
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="include_ux_usability" checked>
-                        <label for="include_ux_usability">User Experience and Usability Issues</label>
-                    </div>
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="include_ui_defects" checked>
-                        <label for="include_ui_defects">UI Defects</label>
-                    </div>
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="include_content_defects" checked>
-                        <label for="include_content_defects">Content Defects</label>
-                    </div>
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="include_accessibility" checked>
-                        <label for="include_accessibility">Accessibility Issues</label>
-                    </div>
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="include_performance" checked>
-                        <label for="include_performance">Performance Issues</label>
-                    </div>
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="include_security" checked>
-                        <label for="include_security">Security Issues</label>
-                    </div>
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="include_responsiveness" checked>
-                        <label for="include_responsiveness">Responsiveness Issues</label>
-                    </div>
+                    <label for="custom_prompt">Testing Instructions: <span style="color: red;">*</span></label>
+                    <textarea id="custom_prompt" rows="4" placeholder="e.g., Test the login functionality with a valid and invalid user, then try to add an item to the cart."></textarea>
                 </div>
 
                 <div class="form-group">
                     <label>
                         <input type="checkbox" id="headless"> Headless Mode
                     </label>
-                </div>
-
-                <div class="form-group">
-                    <label for="custom_prompt">Custom Testing Instructions:</label>
-                    <textarea id="custom_prompt" rows="4" placeholder="Add your own professional testing rules and requirements..."></textarea>
                 </div>
 
                 <div class="control-buttons">
@@ -844,20 +780,6 @@
                     <button class="btn" onclick="loadResults()">📂 Load Results</button>
                     <button class="btn" onclick="clearResults()">🗑️ Clear Results</button>
                     <button class="btn" onclick="loadSampleData()">📋 Load Sample Data</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Enhanced AI Bug Detection Checklist Section -->
-        <div class="bug-checklist">
-            <h3>🤖 AI-Powered Bug Detection Checklist</h3>
-            <div id="enhanced_checklist_content">
-                <div class="checklist-info">
-                    <p>This enhanced checklist uses AI detection methods and comprehensive test scopes to identify issues across all testing categories.</p>
-                    <button id="load_checklist_btn" class="btn btn-primary">Load Enhanced Checklist</button>
-                </div>
-                <div id="dynamic_checklist_content" style="display: none;">
-                    <!-- Dynamic checklist content will be loaded here -->
                 </div>
             </div>
         </div>
@@ -960,7 +882,6 @@
         function saveConfiguration() {
             const config = {
                 website_url: document.getElementById('website_url').value,
-                test_focus: document.getElementById('test_focus').value,
                 provider: document.getElementById('provider').value,
                 api_key: document.getElementById('api_key').value,
                 model: document.getElementById('model').value,
@@ -999,7 +920,6 @@
             .then(response => response.json())
             .then(data => {
                 document.getElementById('website_url').value = data.website_url || '';
-                document.getElementById('test_focus').value = data.test_focus || 'about_us';
                 document.getElementById('provider').value = data.provider || 'google';
 
                 // Update the UI based on the loaded provider
@@ -1058,7 +978,6 @@
 
             const config = {
                 website_url: websiteUrl,
-                test_focus: document.getElementById('test_focus').value,
                 provider: provider,
                 api_key: apiKey,
                 model: document.getElementById('model').value,
