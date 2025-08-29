@@ -885,14 +885,6 @@
                 provider: document.getElementById('provider').value,
                 api_key: document.getElementById('api_key').value,
                 model: document.getElementById('model').value,
-                include_functional: document.getElementById('include_functional').checked,
-                include_ux_usability: document.getElementById('include_ux_usability').checked,
-                include_ui_defects: document.getElementById('include_ui_defects').checked,
-                include_content_defects: document.getElementById('include_content_defects').checked,
-                include_accessibility: document.getElementById('include_accessibility').checked,
-                include_performance: document.getElementById('include_performance').checked,
-                include_security: document.getElementById('include_security').checked,
-                include_responsiveness: document.getElementById('include_responsiveness').checked,
                 headless: document.getElementById('headless').checked,
                 custom_prompt: document.getElementById('custom_prompt').value
             };
@@ -938,14 +930,6 @@
                 document.getElementById('api_key').value = apiKey;
 
                 document.getElementById('model').value = data.model || 'gemini-1.5-flash';
-                document.getElementById('include_functional').checked = data.include_functional !== false;
-                document.getElementById('include_ux_usability').checked = data.include_ux_usability !== false;
-                document.getElementById('include_ui_defects').checked = data.include_ui_defects !== false;
-                document.getElementById('include_content_defects').checked = data.include_content_defects !== false;
-                document.getElementById('include_accessibility').checked = data.include_accessibility !== false;
-                document.getElementById('include_performance').checked = data.include_performance !== false;
-                document.getElementById('include_security').checked = data.include_security !== false;
-                document.getElementById('include_responsiveness').checked = data.include_responsiveness !== false;
                 document.getElementById('headless').checked = data.headless || false;
                 document.getElementById('custom_prompt').value = data.custom_prompt || '';
                 
@@ -981,14 +965,6 @@
                 provider: provider,
                 api_key: apiKey,
                 model: document.getElementById('model').value,
-                include_functional: document.getElementById('include_functional').checked,
-                include_ux_usability: document.getElementById('include_ux_usability').checked,
-                include_ui_defects: document.getElementById('include_ui_defects').checked,
-                include_content_defects: document.getElementById('include_content_defects').checked,
-                include_accessibility: document.getElementById('include_accessibility').checked,
-                include_performance: document.getElementById('include_performance').checked,
-                include_security: document.getElementById('include_security').checked,
-                include_responsiveness: document.getElementById('include_responsiveness').checked,
                 headless: document.getElementById('headless').checked,
                 custom_prompt: document.getElementById('custom_prompt').value
             };
