@@ -80,7 +80,6 @@ test_status = {
 # Professional test configuration with dual API support
 test_config = {
     "website_url": "https://demoblaze.com/",
-    "test_focus": "about_us",
     "provider": "google",
     "google_api_key": "",  # For backward compatibility with old configs
     "openai_api_key": "",
@@ -213,29 +212,24 @@ class ProfessionalTestController:
         )
 
     def _generate_test_task(self):
-        """Generates a robust task prompt for the AI agent to prevent looping."""
+        """Generates the task prompt for the AI agent based on user instructions."""
 
-        base_task = f"""
-        You are a senior QA tester examining the '{test_config['test_focus']}' section of the website {test_config['website_url']}.
+        instructions = test_config.get("custom_prompt", "Perform a general test of the website.")
 
-        Your primary mission is to identify bugs and usability issues. Follow these instructions carefully:
+        prompt = f"""
+        You are a senior QA tester. Your goal is to test the website: {test_config['website_url']}.
 
-        1.  **Explore and Test:** Navigate to {test_config['website_url']} and thoroughly test the '{test_config['test_focus']}' section. This includes clicking all relevant buttons, testing forms, verifying links, and checking content.
-        2.  **Document Findings:** For every issue you find, provide a clear and concise bug report.
-        3.  **Summarize:** Conclude with a brief summary of your findings.
+        Please follow these instructions:
+        {instructions}
 
-        **CRITICAL RULES TO PREVENT LOOPING:**
-        -   **DO NOT REPEAT ACTIONS.** You have a memory of your past actions. Do not perform the same action (e.g., clicking the same button) more than once.
-        -   **PRIORITIZE DIVERSITY.** Your goal is to test as many *different* features as possible within the step limit. Avoid getting stuck on one element.
-        -   **IF STUCK, MOVE ON.** If you find yourself in a repetitive cycle (like opening and closing a modal), stop that cycle immediately and choose a different, untested element to interact with.
-        -   **STEP LIMIT:** You must complete your entire test in a maximum of 8 steps.
+        Your task is to identify bugs, usability issues, or any unexpected behavior.
+
+        Here are some rules to follow:
+        -   Do not get stuck in a loop. If you perform an action, try a different action next.
+        -   Your test should not exceed 8 steps.
+        -   Provide a summary of your findings at the end.
         """
-
-        custom_instructions = test_config.get("custom_prompt", "")
-        if custom_instructions:
-            base_task += f"\n\n**ADDITIONAL USER-DEFINED REQUIREMENTS:**\n{custom_instructions}"
-
-        return base_task
+        return prompt
 
     # This method's logic has been inlined into _run_direct_browser_test for real-time updates
     
