@@ -287,6 +287,8 @@ class ProfessionalTestController:
             browser_session = self._create_browser_session()
             task = self._generate_test_task()
             
+            self.log(f"🧠 Generated Agent Task:\n---\n{task}\n---", "INFO")
+
             agent = Agent(task=task, llm=llm, max_steps=8, browser_session=browser_session)
             
             if stop_event.is_set():
@@ -294,6 +296,8 @@ class ProfessionalTestController:
                 return {"test_cases": [], "bug_reports": [], "execution_log": self.execution_log}
 
             history = await agent.run()
+
+            self.log(f"📜 Agent run completed. History object:\n---\n{history}\n---", "INFO")
 
             if stop_event.is_set():
                 self.log("⏹️ Test execution stopped by user after agent run.", "INFO")
