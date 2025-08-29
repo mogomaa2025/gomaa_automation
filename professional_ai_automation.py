@@ -30,7 +30,7 @@ import tempfile
 # Import Laminar and Gemini dependencies
 try:
     from lmnr import Laminar
-    from browser_use import Agent, ChatGoogle
+    from browser_use import Agent, ChatGoogle, ChatOpenAI, ChatGroq, ChatOllama
     from browser_use.browser import BrowserSession
     LAMINAR_AVAILABLE = True
     print("✅ Laminar and browser-use available")
@@ -82,7 +82,9 @@ test_config = {
     "website_url": "https://demoblaze.com/",
     "test_focus": "about_us",
     "provider": "google",
-    "google_api_key": "",
+    "google_api_key": "",  # For backward compatibility with old configs
+    "openai_api_key": "",
+    "groq_api_key": "",
     "laminar_api_key": "",
     "model": "gemini-2.5-flash",
     "headless": False,
@@ -156,16 +158,35 @@ def save_results_to_file():
     except Exception as e:
         print(f"Error saving results: {e}")
 
+def create_llm(provider: str, model: str, api_key: str = None):
+    """Factory function to create an LLM instance based on the provider."""
+    if not LAMINAR_AVAILABLE:
+        raise ValueError("browser-use is not installed. Cannot create LLM.")
+
+    if provider == "google":
+        if not api_key:
+            raise ValueError("Google API key is required for Gemini models.")
+        return ChatGoogle(model=model, api_key=api_key)
+    elif provider == "openai":
+        if not api_key:
+            raise ValueError("OpenAI API key is required for OpenAI models.")
+        return ChatOpenAI(model=model, api_key=api_key)
+    elif provider == "groq":
+        if not api_key:
+            raise ValueError("Groq API key is required for Groq models.")
+        return ChatGroq(model=model, api_key=api_key)
+    elif provider == "ollama":
+        # Ollama doesn't typically require an API key
+        return ChatOllama(model=model)
+    else:
+        raise ValueError(f"Unsupported provider: {provider}")
+
 class ProfessionalTestController:
     """Controls professional test execution with senior tester behavior"""
     
     def __init__(self):
         self.is_running = False
         self.is_paused = False
-        self.current_test_case = 0
-        self.total_test_cases = 0
-        self.test_results = []
-        self.bug_reports = []
         self.execution_log = []
         
     def log(self, message, level="INFO"):
@@ -177,12 +198,117 @@ class ProfessionalTestController:
             "message": message,
             "datetime": datetime.now().isoformat()
         }
-        
         self.execution_log.append(log_entry)
         print(f"[{timestamp}] {level}: {message}")
-        
-        # Emit to web interface
         socketio.emit('log_message', log_entry)
+
+    def _create_browser_session(self):
+        """Creates and returns a browser session based on test configuration."""
+        self.log("🖥️  Creating browser session...", "INFO")
+        return BrowserSession(
+            headless=test_config["headless"],
+            window_size={"width": test_config["window_width"], "height": test_config["window_height"]},
+            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        )
+
+    def _generate_test_task(self):
+        """Generates the task prompt for the AI agent."""
+        return f"""
+        You are a QA tester examining the {test_config['test_focus']} section on {test_config['website_url']}.
+
+        Your mission is to:
+        1. Navigate to {test_config['website_url']}
+        2. Locate and examine the {test_config['test_focus']} section
+        3. Test the functionality of the {test_config['test_focus']} section (click buttons, check links, verify content)
+        4. Document any issues, bugs, or unexpected behavior you find
+        5. Provide a brief summary of your findings
+
+        IMPORTANT: Complete your testing in 5-8 steps maximum. Do not loop or repeat actions.
+        Focus on efficiency and professional testing standards.
+        """
+
+    def _process_agent_history(self, history: List[Any]) -> Dict[str, Any]:
+        """Processes the agent's history to extract test cases and bug reports."""
+        test_cases = []
+        bug_reports = []
+        test_steps = []
+
+        if not history:
+            return {"test_cases": [], "bug_reports": [], "execution_log": self.execution_log}
+
+        for i, step in enumerate(history):
+            if hasattr(step, 'action') and step.action:
+                test_steps.append({
+                    "step_number": i + 1,
+                    "action": str(step.action),
+                    "expected_result": "Action should execute successfully",
+                    "status": "PASSED" if not hasattr(step, 'error') or not step.error else "FAILED",
+                    "actual_result": str(step.result) if hasattr(step, 'result') else "Action completed",
+                    "execution_time": getattr(step, 'execution_time', 0)
+                })
+
+            if hasattr(step, 'error') and step.error:
+                bug_reports.append({
+                    "bug_id": f"BUG_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{i}",
+                    "title": f"Test Step {i+1} Failed",
+                    "description": str(step.error),
+                    "severity": "MEDIUM",
+                    "category": "Functional",
+                    "steps_to_reproduce": [f"Execute test step {i+1}"],
+                    "expected_behavior": "Action should complete successfully",
+                    "actual_behavior": str(step.error),
+                    "environment": "AI Testing Environment",
+                    "browser": "Chrome (via browser-use)",
+                    "device": "Desktop",
+                    "tester": "AI Testing Agent",
+                    "reported_date": datetime.now().isoformat(),
+                    "status": "OPEN"
+                })
+
+            if hasattr(step, 'result') and step.result:
+                result_text = str(step.result).lower()
+                if any(issue in result_text for issue in ['failed', 'error', 'issue', 'problem', 'broken', 'not working']):
+                    bug_reports.append({
+                        "bug_id": f"ISSUE_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{i}",
+                        "title": f"Issue Found in Step {i+1}",
+                        "description": str(step.result),
+                        "severity": "LOW",
+                        "category": "Functional",
+                        "steps_to_reproduce": [f"Execute test step {i+1}"],
+                        "expected_behavior": "Feature should work correctly",
+                        "actual_behavior": str(step.result),
+                        "environment": "AI Testing Environment",
+                        "browser": "Chrome (via browser-use)",
+                        "device": "Desktop",
+                        "tester": "AI Testing Agent",
+                        "reported_date": datetime.now().isoformat(),
+                        "status": "OPEN"
+                    })
+
+        test_cases.append({
+            "test_id": "BROWSER_TEST_001",
+            "title": f"Browser Test: {test_config['test_focus']}",
+            "description": f"Automated browser testing of {test_config['test_focus']} section on {test_config['website_url']}",
+            "priority": "P1",
+            "status": "COMPLETED",
+            "execution_time": sum(step.get('execution_time', 0) for step in test_steps) or 15.5,
+            "test_steps": test_steps,
+            "created_date": datetime.now().isoformat(),
+            "tester": "AI Testing Agent"
+        })
+
+        return {
+            "test_cases": test_cases,
+            "bug_reports": bug_reports,
+            "execution_log": self.execution_log,
+            "summary": {
+                "test_coverage": {
+                    "Functional Testing": 85.0, "UI/UX Testing": 90.0, "Responsiveness Testing": 75.0,
+                    "Accessibility Testing": 60.0, "Performance Testing": 80.0, "Security Testing": 70.0,
+                    "Browser Compatibility": 85.0, "Content Testing": 95.0
+                }
+            }
+        }
     
     async def run_professional_test_suite(self):
         """Run a complete professional test suite"""
@@ -196,21 +322,13 @@ class ProfessionalTestController:
             self.log(f"Focus Area: {test_config['test_focus']}", "INFO")
             self.log(f"Website: {test_config['website_url']}", "INFO")
             
-            # Check if we have the required APIs
-            if not test_config["google_api_key"]:
-                raise ValueError("Google API key is required for testing")
-            
-            # Initialize Laminar if needed
             if test_config["laminar_api_key"] and test_config["laminar_api_key"] != "your_laminar_key_here":
                 if initialize_laminar_if_needed():
                     self.log("✅ Laminar initialized successfully", "SUCCESS")
                 else:
                     self.log("⚠️  Laminar initialization failed, continuing without it", "WARNING")
             
-            # Run the test suite
             results = await self._run_direct_browser_test()
-            
-            # Process results
             self._process_test_results(results)
             
             self.log("✅ Professional test suite completed successfully!", "SUCCESS")
@@ -219,8 +337,6 @@ class ProfessionalTestController:
         except Exception as e:
             error_msg = f"Professional test suite execution failed: {str(e)}"
             self.log(error_msg, "ERROR")
-            
-            # Add error to results
             test_results["bug_reports"].append({
                 "bug_id": f"ERROR_{datetime.now().strftime('%Y%m%d_%H%M%S')}",
                 "title": "Test Suite Execution Error",
@@ -234,175 +350,33 @@ class ProfessionalTestController:
             self.is_running = False
             test_status["is_running"] = False
             test_status["status_message"] = "Professional testing completed"
-            
-            # Emit final status update
             status_data = prepare_data_for_socket(test_status)
             socketio.emit('status_update', status_data)
             socketio.emit('test_completed', {"status": "completed"})
     
     async def _run_direct_browser_test(self):
-        """Run direct browser testing when framework is not available"""
+        """Orchestrates the direct browser test."""
         try:
             self.log("🔄 Running direct browser testing...", "INFO")
-            
-            # Check if we have the required APIs
-            if not test_config["google_api_key"]:
-                raise ValueError("Google API key is required for direct browser testing")
-            
             if not LAMINAR_AVAILABLE:
                 raise ValueError("browser-use is required for testing")
+
+            provider = test_config["provider"]
+            model = test_config["model"]
+            api_key_name = f"{provider}_api_key"
+            api_key = test_config.get(api_key_name)
             
-            # Create browser session
-            browser_session = BrowserSession(
-                headless=test_config["headless"],
-                window_size={"width": test_config["window_width"], "height": test_config["window_height"]},
-                user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-            )
+            llm = create_llm(provider=provider, model=model, api_key=api_key)
+            self.log(f"🤖 Initialized LLM with provider: {provider}, model: {model}", "INFO")
+
+            browser_session = self._create_browser_session()
+            task = self._generate_test_task()
             
-            # Create LLM
-            llm = ChatGoogle(model=test_config["model"], api_key=test_config["google_api_key"])
+            agent = Agent(task=task, llm=llm, max_steps=8, browser_session=browser_session)
             
-            # Create test task
-            task = f"""
-            You are a QA tester examining the {test_config['test_focus']} section on {test_config['website_url']}.
-            
-            Your mission is to:
-            1. Navigate to {test_config['website_url']}
-            2. Locate and examine the {test_config['test_focus']} section
-            3. Test the functionality of the {test_config['test_focus']} section (click buttons, check links, verify content)
-            4. Document any issues, bugs, or unexpected behavior you find
-            5. Provide a brief summary of your findings
-            
-            IMPORTANT: Complete your testing in 5-8 steps maximum. Do not loop or repeat actions.
-            Focus on efficiency and professional testing standards.
-            """
-            
-            # Create agent
-            agent = Agent(
-                task=task,
-                llm=llm,
-                max_steps=8,  # Reduced to prevent looping
-                browser_session=browser_session
-            )
-            
-            # Run the agent
             history = await agent.run()
             
-            # Process the results from the agent history
-            test_cases = []
-            bug_reports = []
-            test_steps = []
-            
-            # Extract test steps from agent history
-            if history and len(history) > 0:
-                for i, step in enumerate(history):
-                    if hasattr(step, 'action') and step.action:
-                        test_steps.append({
-                            "step_number": i + 1,
-                            "action": str(step.action),
-                            "expected_result": "Action should execute successfully",
-                            "status": "PASSED" if not hasattr(step, 'error') or not step.error else "FAILED",
-                            "actual_result": str(step.result) if hasattr(step, 'result') else "Action completed",
-                            "execution_time": getattr(step, 'execution_time', 0)
-                        })
-                    
-                    # Check for errors or issues
-                    if hasattr(step, 'error') and step.error:
-                        bug_reports.append({
-                            "bug_id": f"BUG_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{i}",
-                            "title": f"Test Step {i+1} Failed",
-                            "description": str(step.error),
-                            "severity": "MEDIUM",
-                            "category": "Functional",
-                            "steps_to_reduce": [f"Execute test step {i+1}"],
-                            "expected_behavior": "Action should complete successfully",
-                            "actual_behavior": str(step.error),
-                            "environment": "AI Testing Environment",
-                            "browser": "Chrome (via browser-use)",
-                            "device": "Desktop",
-                            "tester": "AI Testing Agent",
-                            "reported_date": datetime.now().isoformat(),
-                            "status": "OPEN"
-                        })
-                    
-                    # Check for issues mentioned in step results
-                    if hasattr(step, 'result') and step.result:
-                        result_text = str(step.result).lower()
-                        if any(issue in result_text for issue in ['failed', 'error', 'issue', 'problem', 'broken', 'not working']):
-                            bug_reports.append({
-                                "bug_id": f"ISSUE_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{i}",
-                                "title": f"Issue Found in Step {i+1}",
-                                "description": str(step.result),
-                                "severity": "LOW",
-                                "category": "Functional",
-                                "steps_to_reproduce": [f"Execute test step {i+1}"],
-                                "expected_behavior": "Feature should work correctly",
-                                "actual_behavior": str(step.result),
-                                "environment": "AI Testing Environment",
-                                "browser": "Chrome (via browser-use)",
-                                "device": "Desktop",
-                                "tester": "AI Testing Agent",
-                                "reported_date": datetime.now().isoformat(),
-                                "status": "OPEN"
-                            })
-            
-            # Create comprehensive test case
-            test_cases.append({
-                "test_id": "BROWSER_TEST_001",
-                "title": f"Browser Test: {test_config['test_focus']}",
-                "description": f"Automated browser testing of {test_config['test_focus']} section on {test_config['website_url']}",
-                "priority": "P1",
-                "status": "COMPLETED",
-                "execution_time": sum(step.get('execution_time', 0) for step in test_steps) or 15.5,
-                "test_steps": test_steps,
-                "created_date": datetime.now().isoformat(),
-                "tester": "AI Testing Agent"
-            })
-            
-            # Analyze final agent output for additional issues
-            if history and len(history) > 0:
-                last_step = history[-1]
-                if hasattr(last_step, 'result') and last_step.result:
-                    final_output = str(last_step.result).lower()
-                    if 'video failed to load' in final_output:
-                        bug_reports.append({
-                            "bug_id": f"VIDEO_ISSUE_{datetime.now().strftime('%Y%m%d_%H%M%S')}",
-                            "title": "Video Loading Issue in About Us Section",
-                            "description": "Video content failed to load in the About Us modal",
-                            "severity": "MEDIUM",
-                            "category": "Media",
-                            "steps_to_reproduce": ["Navigate to About Us section", "Open About Us modal"],
-                            "expected_behavior": "Video should load and play correctly",
-                            "actual_behavior": "Video failed to load",
-                            "environment": "AI Testing Environment",
-                            "browser": "Chrome (via browser-use)",
-                            "device": "Desktop",
-                            "tester": "AI Testing Agent",
-                            "reported_date": datetime.now().isoformat(),
-                            "status": "OPEN"
-                        })
-            
-            # Create results structure
-            results = {
-                "test_cases": test_cases,
-                "bug_reports": bug_reports,
-                "execution_log": self.execution_log,
-                "summary": {
-                    "test_coverage": {
-                        "Functional Testing": 85.0,
-                        "UI/UX Testing": 90.0,
-                        "Responsiveness Testing": 75.0,
-                        "Accessibility Testing": 60.0,
-                        "Performance Testing": 80.0,
-                        "Security Testing": 70.0,
-                        "Browser Compatibility": 85.0,
-                        "Content Testing": 95.0
-                    }
-                }
-            }
-            
-            self.log("✅ Direct browser testing completed successfully!", "SUCCESS")
-            return results
+            return self._process_agent_history(history)
             
         except Exception as e:
             self.log(f"Direct browser testing failed: {str(e)}", "ERROR")
@@ -413,26 +387,21 @@ class ProfessionalTestController:
         try:
             self.log("📊 Processing professional test results...", "INFO")
             
-            # Store test cases
             if "test_cases" in results:
                 test_results["test_cases"] = results["test_cases"]
                 self.log(f"📋 Processed {len(results['test_cases'])} test cases", "INFO")
             
-            # Store bug reports
             if "bug_reports" in results:
                 test_results["bug_reports"] = results["bug_reports"]
                 self.log(f"🐛 Processed {len(results['bug_reports'])} bug reports", "INFO")
             
-            # Store execution logs
             if "execution_log" in results:
                 test_results["execution_logs"].extend(results["execution_log"])
             
-            # Store recommendations
             if "recommendations" in results:
                 test_results["recommendations"] = results["recommendations"]
                 self.log(f"💡 Generated {len(results['recommendations'])} recommendations", "INFO")
             
-            # Update test coverage
             if "summary" in results and "test_coverage" in results["summary"]:
                 test_status["test_coverage"] = results["summary"]["test_coverage"]
                 test_results["coverage_reports"].append({
@@ -440,13 +409,9 @@ class ProfessionalTestController:
                     "coverage": results["summary"]["test_coverage"]
                 })
             
-            # Save results
             save_results_to_file()
-            
-            # Emit results update
             results_data = prepare_data_for_socket(test_results)
             socketio.emit('results_update', results_data)
-            
             self.log(f"📊 Results processed successfully", "SUCCESS")
             
         except Exception as e:
@@ -484,24 +449,32 @@ def update_config():
     try:
         data = request.json
         if data:
+            # First, update the provider if it's in the data
+            if 'provider' in data:
+                test_config['provider'] = data['provider']
+
+            # Now, update the rest of the config
             for key, value in data.items():
-                if key in test_config:
+                if key == "api_key" and value:
+                    provider = test_config['provider']
+                    if provider == 'google':
+                        test_config['google_api_key'] = value
+                    elif provider == 'openai':
+                        test_config['openai_api_key'] = value
+                    elif provider == 'groq':
+                        test_config['groq_api_key'] = value
+                elif key in test_config:
                     test_config[key] = value
-                # Map frontend field names to backend field names
-                elif key == "api_key" and value:
-                    test_config["google_api_key"] = value
-            
-            # Check if API keys are configured
+
+            # Check if any relevant API key is configured
             google_key = test_config.get("google_api_key", "")
-            laminar_key = test_config.get("laminar_api_key", "")
+            openai_key = test_config.get("openai_api_key", "")
+            groq_key = test_config.get("groq_api_key", "")
             
-            if (google_key and google_key != "your_gemini_api_key_here" and 
-                laminar_key and laminar_key != "your_laminar_key_here"):
+            if (google_key or openai_key or groq_key):
                 test_config["api_keys_configured"] = True
                 # Try to initialize Laminar if needed
                 initialize_laminar_if_needed()
-            elif google_key and google_key != "your_gemini_api_key_here":
-                test_config["api_keys_configured"] = True
             else:
                 test_config["api_keys_configured"] = False
         
@@ -520,14 +493,24 @@ def start_test():
     try:
         data = request.json
         
-        # Update configuration if provided
+        # Update configuration from the start request
         if data:
+            # First, update the provider if it's in the data
+            if 'provider' in data:
+                test_config['provider'] = data['provider']
+
+            # Now, update the rest of the config
             for key, value in data.items():
-                if key in test_config:
+                if key == "api_key" and value:
+                    provider = test_config['provider']
+                    if provider == 'google':
+                        test_config['google_api_key'] = value
+                    elif provider == 'openai':
+                        test_config['openai_api_key'] = value
+                    elif provider == 'groq':
+                        test_config['groq_api_key'] = value
+                elif key in test_config:
                     test_config[key] = value
-                # Map frontend field names to backend field names
-                elif key == "api_key" and value:
-                    test_config["google_api_key"] = value
         
         # Save updated configuration
         save_config_to_file()
@@ -535,9 +518,13 @@ def start_test():
         # Validate configuration
         if not test_config["website_url"]:
             return jsonify({"error": "Website URL is required. Please enter a valid URL in the configuration section."}), 400
-        
-        if not test_config["google_api_key"]:
-            return jsonify({"error": "Google Gemini API key is required. Please enter your API key in the configuration section. Get your API key from: https://makersuite.google.com/app/apikey"}), 400
+
+        provider = test_config["provider"]
+        if provider != "ollama":  # Ollama doesn't need an API key
+            api_key_name = f"{provider}_api_key"
+            api_key = test_config.get(api_key_name)
+            if not api_key:
+                return jsonify({"error": f"{provider.capitalize()} API key is required. Please enter your API key in the configuration section."}), 400
         
         # Check if framework is available
         if not LAMINAR_AVAILABLE:

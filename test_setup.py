@@ -60,36 +60,22 @@ def test_imports():
     
     return True
 
-def test_environment():
-    """Test environment variables"""
-    print("\n🔍 Testing environment variables...")
+def test_config_files():
+    """Test for the presence of configuration files."""
+    print("\n🔍 Testing for configuration files...")
     
-    # Load .env file if it exists
-    env_file = Path(".env")
-    if env_file.exists():
-        from dotenv import load_dotenv
-        load_dotenv()
-        print("✅ .env file found and loaded")
+    config_file = Path("professional_test_config.json")
+    if config_file.exists():
+        print(f"✅ Found '{config_file}'")
     else:
-        print("⚠️  .env file not found")
-        print("   Please create .env file with your API keys")
-        print("   See env_example.txt for reference")
-    
-    # Check API keys
-    google_key = os.getenv('GOOGLE_API_KEY')
-    laminar_key = os.getenv('LAMINAR_API_KEY')
-    
-    if google_key and google_key != "your_gemini_api_key_here":
-        print("✅ Google API key: SET")
+        print(f"⚠️  '{config_file}' not found. It will be created on first configuration save.")
+
+    results_file = Path("professional_test_results.json")
+    if results_file.exists():
+        print(f"✅ Found '{results_file}'")
     else:
-        print("❌ Google API key: NOT SET")
-        print("   Please set GOOGLE_API_KEY in your .env file")
-    
-    if laminar_key and laminar_key != "your_laminar_api_key_here":
-        print("✅ Laminar API key: SET")
-    else:
-        print("⚠️  Laminar API key: NOT SET (optional)")
-    
+        print(f"⚠️  '{results_file}' not found. It will be created when a test is run.")
+
     return True
 
 def test_file_structure():
@@ -141,7 +127,7 @@ def main():
     
     tests = [
         ("Package Imports", test_imports),
-        ("Environment Variables", test_environment),
+        ("Config Files", test_config_files),
         ("File Structure", test_file_structure),
         ("Browser Automation", test_browser_automation)
     ]
