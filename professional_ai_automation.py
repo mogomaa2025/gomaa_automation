@@ -12,6 +12,7 @@ A Flask application that provides a professional testing interface with:
 import os
 import sys
 import json
+import re
 import threading
 import time
 import asyncio
@@ -223,6 +224,38 @@ class ProfessionalTestController:
         """
         return prompt
 
+    def _parse_final_report(self, report_text: str):
+        """Parses the agent's final markdown report to extract test cases and bugs."""
+
+        bug_reports = []
+
+        # A more robust regex to find bug reports
+        bug_pattern = re.compile(
+            r"## Bug Report\n\n\*\*Bug Summary:\*\* (.*?)\n\n\*\*Description:\*\* (.*?)\n\n\*\*Steps to Reproduce:\*\*\n(.*?)\n\n\*\*Expected Result:\*\* (.*?)\n\n\*\*Actual Result:\*\* (.*?)\n",
+            re.DOTALL
+        )
+
+        matches = bug_pattern.finditer(report_text)
+
+        for match in matches:
+            steps_to_reproduce_raw = match.group(3).strip()
+            steps = [step.strip().lstrip('0123456789. ') for step in steps_to_reproduce_raw.split('\n')]
+
+            bug_reports.append({
+                "bug_id": f"BUG_{len(bug_reports) + 1}",
+                "title": match.group(1).strip(),
+                "description": match.group(2).strip(),
+                "steps_to_reproduce": steps,
+                "expected_behavior": match.group(4).strip(),
+                "actual_behavior": match.group(5).strip(),
+                "severity": "Medium",  # Default severity
+                "category": "Functional",
+                "reported_date": datetime.now().isoformat(),
+                "status": "OPEN"
+            })
+
+        return {"bug_reports": bug_reports}
+
     # This method's logic has been inlined into _run_direct_browser_test for real-time updates
     
     async def run_professional_test_suite(self):
@@ -270,94 +303,74 @@ class ProfessionalTestController:
             socketio.emit('test_completed', {"status": "completed"})
     
     async def _run_direct_browser_test(self):
-        """Orchestrates the direct browser test and provides real-time feedback."""
+        """Orchestrates the direct browser test, processes results, and provides real-time feedback."""
         try:
             self.log("🔄 Running direct browser testing...", "INFO")
             if not LAMINAR_AVAILABLE:
                 raise ValueError("browser-use is required for testing")
 
+            # Setup agent
             provider = test_config["provider"]
             model = test_config["model"]
-            api_key_name = f"{provider}_api_key"
-            api_key = test_config.get(api_key_name)
-            
+            api_key = test_config.get(f"{provider}_api_key")
             llm = create_llm(provider=provider, model=model, api_key=api_key)
-            self.log(f"🤖 Initialized LLM with provider: {provider}, model: {model}", "INFO")
-
             browser_session = self._create_browser_session()
             task = self._generate_test_task()
+            agent = Agent(task=task, llm=llm, max_steps=8, browser_session=browser_session)
             
             self.log(f"🧠 Generated Agent Task:\n---\n{task}\n---", "INFO")
 
-            agent = Agent(task=task, llm=llm, max_steps=8, browser_session=browser_session)
-            
-            if stop_event.is_set():
-                self.log("⏹️ Test execution stopped by user before agent run.", "INFO")
-                return {"test_cases": [], "bug_reports": [], "execution_log": self.execution_log}
-
+            # Run agent
+            if stop_event.is_set(): return {}
             history = await agent.run()
+            self.log(f"📜 Agent run completed. History object returned.", "INFO")
 
-            self.log(f"📜 Agent run completed. History object:\n---\n{history}\n---", "INFO")
-
-            if stop_event.is_set():
-                self.log("⏹️ Test execution stopped by user after agent run.", "INFO")
-
-            # Process history step-by-step and emit updates
-            test_cases = []
-            bug_reports = []
+            # Process history for real-time action feedback
             test_steps = []
-
-            if history:
-                for i, step in enumerate(history):
-                    if stop_event.is_set():
-                        self.log("⏹️ Test processing stopped by user.", "INFO")
-                        break
-
-                    # Process step
+            if history and history.all_results:
+                for i, step in enumerate(history.all_results):
+                    if stop_event.is_set(): break
                     if hasattr(step, 'action') and step.action:
                         test_steps.append({
                             "step_number": i + 1, "action": str(step.action),
                             "expected_result": "Action should execute successfully",
-                            "status": "PASSED" if not hasattr(step, 'error') or not step.error else "FAILED",
-                            "actual_result": str(step.result) if hasattr(step, 'result') else "Action completed",
+                            "status": "PASSED" if not step.error else "FAILED",
+                            "actual_result": str(step.result) if step.result else "Action completed",
                             "execution_time": getattr(step, 'execution_time', 0)
                         })
 
-                    if hasattr(step, 'error') and step.error:
-                        bug_reports.append({
-                            "bug_id": f"BUG_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{i}",
-                            "title": f"Test Step {i+1} Failed: {str(step.action)}", "description": str(step.error),
-                            "severity": "MEDIUM", "category": "Functional",
-                            "steps_to_reproduce": [f"Execute test step {i+1}"],
-                            "expected_behavior": "Action should complete successfully", "actual_behavior": str(step.error)
-                        })
-
-                    # Emit real-time update
-                    current_test_case = {
-                        "test_id": "BROWSER_TEST_001", "title": f"Browser Test: {test_config['test_focus']}",
-                        "status": "IN_PROGRESS", "test_steps": test_steps.copy(),
-                        "execution_time": sum(s.get('execution_time', 0) for s in test_steps)
-                    }
-
-                    # Update global results for UI
-                    test_results['test_cases'] = [current_test_case]
-                    test_results['bug_reports'] = bug_reports.copy()
-
+                    test_results['test_cases'] = [{
+                        "test_id": "BROWSER_TEST_001", "title": f"Browser Test",
+                        "status": "IN_PROGRESS", "test_steps": test_steps.copy()
+                    }]
                     socketio.emit('results_update', prepare_data_for_socket(test_results))
-                    await asyncio.sleep(0.2)
+                    await asyncio.sleep(0.1)
 
-            # Finalize test case
-            final_test_case = {
-                "test_id": "BROWSER_TEST_001", "title": f"Browser Test: {test_config['test_focus']}",
-                "status": "COMPLETED" if not any(b['severity'] == 'MEDIUM' for b in bug_reports) else "FAILED",
-                "test_steps": test_steps, "execution_time": sum(s.get('execution_time', 0) for s in test_steps)
-            }
+            # Find final report and parse for bugs
+            bug_reports = []
+            final_report_text = ""
+            if history and history.all_results:
+                final_step = next((s for s in reversed(history.all_results) if s.is_done), None)
+                if final_step:
+                    final_report_text = final_step.long_term_memory or final_step.extracted_content or ""
+                    self.log(f"📄 Parsing final agent report:\n---\n{final_report_text}\n---", "INFO")
+                    parsed_results = self._parse_final_report(final_report_text)
+                    bug_reports = parsed_results.get("bug_reports", [])
             
+            # Finalize results
+            final_status = "FAILED" if bug_reports else "COMPLETED"
+            test_results['test_cases'] = [{
+                "test_id": "BROWSER_TEST_001", "title": f"Browser Test",
+                "status": final_status, "test_steps": test_steps
+            }]
+            test_results['bug_reports'] = bug_reports
+            socketio.emit('results_update', prepare_data_for_socket(test_results))
+
             return {
-                "test_cases": [final_test_case], "bug_reports": bug_reports, "execution_log": self.execution_log,
-                "summary": { "test_coverage": { "Functional Testing": 85.0 } }
+                "test_cases": test_results['test_cases'], "bug_reports": bug_reports,
+                "execution_log": self.execution_log, "summary": {"test_coverage": {"Functional Testing": 85.0}}
             }
-            
+
         except Exception as e:
             self.log(f"Direct browser testing failed: {str(e)}", "ERROR")
             raise
