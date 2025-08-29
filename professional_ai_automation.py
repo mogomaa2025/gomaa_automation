@@ -296,10 +296,20 @@ class ProfessionalTestController:
             
             history = await agent.run()
 
+            self.log(f"DEBUG: History object type: {type(history)}", "INFO")
+
             final_report_text = ""
             if history:
+                try:
+                    # Log the first item to see its structure
+                    first_item = list(history)[0]
+                    self.log(f"DEBUG: First history item: {first_item}", "INFO")
+                    self.log(f"DEBUG: First history item type: {type(first_item)}", "INFO")
+                except IndexError:
+                    self.log("DEBUG: History object is empty.", "INFO")
+
                 # The history object is iterable
-                final_step = next((s for s in reversed(list(history)) if s.is_done), None)
+                final_step = next((s for s in reversed(list(history)) if hasattr(s, 'is_done') and s.is_done), None)
                 if final_step:
                     final_report_text = final_step.long_term_memory or ""
 
@@ -356,9 +366,18 @@ class ProfessionalTestController:
 
                 history = await agent.run()
 
+                self.log(f"DEBUG: History object type: {type(history)}", "INFO")
+
                 final_report_text = ""
                 if history:
-                    final_step = next((s for s in reversed(list(history)) if s.is_done), None)
+                    try:
+                        first_item = list(history)[0]
+                        self.log(f"DEBUG: First history item: {first_item}", "INFO")
+                        self.log(f"DEBUG: First history item type: {type(first_item)}", "INFO")
+                    except IndexError:
+                        self.log("DEBUG: History object is empty.", "INFO")
+
+                    final_step = next((s for s in reversed(list(history)) if hasattr(s, 'is_done') and s.is_done), None)
                     if final_step:
                         final_report_text = final_step.long_term_memory or ""
 
